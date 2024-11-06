@@ -129,8 +129,8 @@ import AccountForm from './AccountForm';
 
 const AccountList = () => {
     const [accounts, setAccounts] = useState([
-        { id: 1, bank: 'State Bank of India', deposit: 50788, withdrawal: 48185, balance: 2185 },
-        { id: 2, bank: 'Paytm Payment Bank', deposit: 20788, withdrawal: 2365, balance: 18305 },
+        { id: 1, bank: 'MB Bank', deposit: 50788, withdrawal: 48185, balance: 2185 },
+        { id: 2, bank: 'VIETTINBANK', deposit: 20788, withdrawal: 2365, balance: 18305 },
         { id: 3, bank: 'HDFC Bank', deposit: 15788, withdrawal: 14895, balance: 985 },
     ]);
 
@@ -176,15 +176,15 @@ const AccountList = () => {
                     <span>Total Accounts</span>
                 </div>
                 <div className="summary-item">
-                    <p>Rs. {totalDeposit.toLocaleString()}</p>
+                    <p>{totalDeposit.toLocaleString()} VND </p>
                     <span>Total Deposit</span>
                 </div>
                 <div className="summary-item">
-                    <p>Rs. {totalWithdrawal.toLocaleString()}</p>
+                    <p>{totalWithdrawal.toLocaleString()} VND </p>
                     <span>Total Withdrawal</span>
                 </div>
                 <div className="summary-item balance">
-                    <p>Rs. {totalBalance.toLocaleString()}</p>
+                    <p>{totalBalance.toLocaleString()} VND </p>
                     <span>Total Balance</span>
                 </div>
             </div>
@@ -203,9 +203,9 @@ const AccountList = () => {
                     {accounts.map(account => (
                         <tr key={account.id}>
                             <td>{account.bank}</td>
-                            <td>Rs. {account.deposit.toLocaleString()}</td>
-                            <td>Rs. {account.withdrawal.toLocaleString()}</td>
-                            <td>Rs. {account.balance.toLocaleString()}</td>
+                            <td> {account.deposit.toLocaleString()} VND </td>
+                            <td> {account.withdrawal.toLocaleString()} VND </td>
+                            <td> {account.balance.toLocaleString()} VND </td>
                             <td>
                                 <button className="edit-btn" onClick={() => { setEditingAccount(account); setIsFormVisible(true); }}>✎</button>
                                 <button className="delete-btn" onClick={() => handleDeleteAccount(account.id)}>🗑️</button>

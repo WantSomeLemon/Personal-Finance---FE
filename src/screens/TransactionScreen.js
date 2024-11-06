@@ -104,6 +104,7 @@ const TransactionScreen = () => {
     const [transactions, setTransactions] = useState([
         { id: 1, dateTime: 'August 2, 2023 11:42:37 AM', transactionType: 'Spent on', category: 'Utilities', accountName: 'Techcombank', paymentMethod: 'Cash', amount: -1000 },
         { id: 2, dateTime: 'August 2, 2023 11:41:54 AM', transactionType: 'Spent on', category: 'Groceries', accountName: 'MBbank', paymentMethod: 'Cash', amount: -3000 },
+        { id: 3, dateTime: 'August 2, 2023 11:41:54 AM', transactionType: 'Spent on', category: 'Food', accountName: 'MBbank', paymentMethod: 'Cash', amount: -3000 },
     ]);
 
     const handleSaveTransaction = (newTransaction) => {

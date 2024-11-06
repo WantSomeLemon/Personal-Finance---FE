@@ -202,15 +202,15 @@ const BudgetList = () => {
 
             <div className="summary-section">
                 <div className="summary-item">
-                    <p>Rs. {totalBudget.toLocaleString()}</p>
+                    <p> {totalBudget.toLocaleString()} VND </p>
                     <span>Total Budget</span>
                 </div>
                 <div className="summary-item">
-                    <p>Rs. {totalUsed.toLocaleString()}</p>
+                    <p> {totalUsed.toLocaleString()} VND </p>
                     <span>Total Used</span>
                 </div>
                 <div className="summary-item total-left">
-                    <p>Rs. {totalLeft.toLocaleString()}</p>
+                    <p> {totalLeft.toLocaleString()} VND </p>
                     <span>Total Left</span>
                 </div>
             </div>
@@ -229,9 +229,9 @@ const BudgetList = () => {
                     {budgets.map(budget => (
                         <tr key={budget.id}>
                             <td>{budget.name}</td>
-                            <td>Rs. {budget.budget.toLocaleString()}</td>
-                            <td>Rs. {budget.usedAmount.toLocaleString()}</td>
-                            <td>Rs. {(budget.budget - budget.usedAmount).toLocaleString()}</td>
+                            <td>{budget.budget.toLocaleString()} VND </td>
+                            <td> {budget.usedAmount.toLocaleString()} VND </td>
+                            <td> {(budget.budget - budget.usedAmount).toLocaleString()} VND </td>
                             <td>
                                 <button className="edit-btn" onClick={() => handleEditClick(budget)}>✎</button>
                                 <button className="delete-btn" onClick={() => handleDeleteClick(budget.id)}>🗑️</button>

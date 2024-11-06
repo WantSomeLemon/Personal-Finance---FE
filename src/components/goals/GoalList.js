@@ -28,7 +28,7 @@ export default function GoalList() {
         <tr key={element.name}>
             <td><Text fw={700}>{element.name}</Text><Text c={"dimmed"} size={"xs"}>{element.description}</Text></td>
             <td><Text fw={700}>{handleDate(element.targetDate)}</Text></td>
-            <td><Text fw={700}>{`Rs. ${element.targetAmount}`}</Text></td>
+            <td><Text fw={700}>{`${element.targetAmount}`}</Text></td>
             <td><Text fw={700}>{element.status}</Text></td>
             <td>{<EditSVG onClick={() => handleEdit(element) }/>}</td>
         </tr>
@@ -135,15 +135,15 @@ const GoalsList = () => {
 
             <div className="summary-section">
                 <div className="summary-item">
-                    <p>Rs. {totalTargetAmount.toLocaleString()}</p>
+                    <p>{totalTargetAmount.toLocaleString()} VND </p>
                     <span>Total Target Amount</span>
                 </div>
                 <div className="summary-item">
-                    <p>Rs. {totalCurrentAmount.toLocaleString()}</p>
+                    <p>{totalCurrentAmount.toLocaleString()} VND </p>
                     <span>Total Current Amount</span>
                 </div>
                 <div className="summary-item total-remaining">
-                    <p>Rs. {totalRemaining.toLocaleString()}</p>
+                    <p>{totalRemaining.toLocaleString()} VND </p>
                     <span>Total Remaining</span>
                 </div>
             </div>
@@ -168,8 +168,8 @@ const GoalsList = () => {
                             <td>{goal.GoalID}</td>
                             <td>{goal.Name}</td>
                             <td>{goal.Description}</td>
-                            <td>Rs. {goal.TargetAmount.toLocaleString()}</td>
-                            <td>Rs. {goal.CurrentAmount.toLocaleString()}</td>
+                            <td> {goal.TargetAmount.toLocaleString()} VND </td>
+                            <td> {goal.CurrentAmount.toLocaleString()} VND </td>
                             <td>{new Date(goal.TargetDate).toLocaleDateString()}</td>
                             <td>{goal.isAchieved ? 'Yes' : 'No'}</td>
                             <td>{goal.AchievedDate ? new Date(goal.AchievedDate).toLocaleDateString() : 'N/A'}</td>

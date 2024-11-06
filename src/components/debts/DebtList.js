@@ -85,7 +85,7 @@ const DebtList = () => {
                     <span>Total Debts</span>
                 </div>
                 <div className="summary-item total-amount">
-                    <p>Rs . {totalDebt.toLocaleString()}</p>
+                    <p> {totalDebt.toLocaleString()} VND </p>
                     <span>Total Amount</span>
                 </div>
             </div>
@@ -107,7 +107,7 @@ const DebtList = () => {
                     {debts.filter(debt => !debt.isDeleted).map(debt => (
                         <tr key={debt.id}>
                             <td>{debt.creditor}</td>
-                            <td>Rs. {debt.amount.toLocaleString()}</td>
+                            <td> {debt.amount.toLocaleString()} VND </td>
                             <td>{debt.dueDate}</td>
                             <td>{debt.notes}</td>
                             <td>{debt.isPaid ? 'Paid' : 'Unpaid'}</td>
