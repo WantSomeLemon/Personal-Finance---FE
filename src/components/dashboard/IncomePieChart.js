@@ -1,3 +1,4 @@
+/*
 import React, {useEffect, useState} from 'react';
 import { Pie } from 'react-chartjs-2';
 import {
@@ -140,6 +141,26 @@ const IncomePieChart = (props) => {
             </div>
         }
     </div>
+};
+
+export default IncomePieChart;
+*/
+
+// IncomePieChart.js
+import React from 'react';
+
+const IncomePieChart = ({ data, title, amount }) => {
+    return (
+        <div style={{ width: '45%' }}>
+            <h3>{title}</h3>
+            <div style={{ color: 'green', fontSize: '20px' }}>{amount}</div>
+            <ul>
+                {data.map((category, index) => (
+                    <li key={index} style={{ color: 'lightgreen' }}>{category.name}: {category.value}%</li>
+                ))}
+            </ul>
+        </div>
+    );
 };
 
 export default IncomePieChart;

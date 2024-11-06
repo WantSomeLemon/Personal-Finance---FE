@@ -9,6 +9,8 @@ import storage from "redux-persist/lib/storage";
 import {persistReducer, persistStore} from "redux-persist";
 import goalSlice from "./features/goalSlice";
 
+
+
 const persistConfig = {
     key: "paymint",
     storage,

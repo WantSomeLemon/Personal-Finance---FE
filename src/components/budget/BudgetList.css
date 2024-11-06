@@ -1,0 +1,141 @@
+.budget-list-container {
+    width: 100%;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Header section styling to place Add Budget button near the title */
+.header-section {
+    display: flex;
+    justify-content: flex-start; /* Align items to the left */
+    gap: 20px; /* Add space between the title and the button */
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.add-budget-btn {
+    padding: 10px 20px;
+    background-color: #1a73e8;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.add-budget-btn:hover {
+    background-color: #0b59d0;
+}
+
+.summary-section {
+    display: flex;
+    justify-content: flex-start; /* Align to the left */
+    gap: 50px; /* Space between the items */
+    margin-bottom: 20px;
+}
+
+.summary-item {
+    text-align: left; /* Align text to the left */
+    padding: 10px 15px;
+    background-color: #e9f4fe;
+    border-radius: 8px;
+}
+
+.summary-item p {
+    font-size: 24px;
+    margin: 0;
+    color: #333;
+}
+
+.summary-item span {
+    color: #666;
+}
+
+.total-left {
+    color: #28a745; /* Green color for balance left */
+    font-weight: bold;
+}
+
+.budget-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.budget-table th, .budget-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.budget-table th {
+    background-color: #f7f7f7;
+    font-weight: bold;
+}
+
+.budget-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.edit-btn, .delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+}
+
+.edit-btn:hover {
+    color: #1a73e8;
+}
+
+.delete-btn:hover {
+    color: #dc3545;
+}
+
+.budget-form-container {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    max-width: 400px;
+    margin: 20px auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.budget-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.budget-form input {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.budget-form button {
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+.budget-form button:hover {
+    background-color: #45a049;
+}
+
+
+
+.summary-item.total-left p {
+    color: #26AB35; /* Màu xanh lá cho tổng số còn lại */
+    font-weight: bold; /* Tùy chọn: để làm nổi bật */
+}
+
+.summary-item.total-left span {
+    color: #333; /* Bạn có thể điều chỉnh màu này theo nhu cầu cho nhãn */
+}

@@ -63,7 +63,7 @@ export default function HeaderBar(props) {
                 <Group position="apart" sx={{ height: '100%' }}>
                     <Group>
                         {props.isMobile && <Burger opened={props.navOpened} onClick={() => props.setNavOpened(!props.navOpened)}/>}
-                        <AppLogo />
+                       AppLogo 
                     </Group>
                         {props.isLandingPage?
                             <Group>

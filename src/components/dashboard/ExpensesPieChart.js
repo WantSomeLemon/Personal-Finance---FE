@@ -1,3 +1,4 @@
+/*
 import React, {useEffect, useState} from 'react';
 import { Pie } from 'react-chartjs-2';
 import {
@@ -142,6 +143,27 @@ const ExpensesPieChart = (props) => {
             </div>
         }
     </div>
+};
+
+export default ExpensesPieChart;
+*/
+
+
+// ExpensesPieChart.js
+import React from 'react';
+
+const ExpensesPieChart = ({ data, title, amount }) => {
+    return (
+        <div style={{ width: '45%' }}>
+            <h3>{title}</h3>
+            <div style={{ color: 'blue', fontSize: '20px' }}>{amount}</div>
+            <ul>
+                {data.map((category, index) => (
+                    <li key={index} style={{ color: 'lightblue' }}>{category.name}: {category.value}%</li>
+                ))}
+            </ul>
+        </div>
+    );
 };
 
 export default ExpensesPieChart;

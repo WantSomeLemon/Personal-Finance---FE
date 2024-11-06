@@ -1,3 +1,4 @@
+/*
 import React, {useEffect, useState} from 'react';
 import {Bar} from 'react-chartjs-2';
 import {
@@ -146,6 +147,39 @@ const BarChart = () => {
     </div>
 
 
+};
+
+export default BarChart;
+*/
+
+
+// BarChart.js
+import React from 'react';
+
+const BarChart = ({ data }) => {
+    return (
+        <div>
+            <h3>Last 6 Months Income and Expenses</h3>
+            <table style={{ width: '100%', border: '1px solid #ddd', borderCollapse: 'collapse' }}>
+                <thead>
+                    <tr style={{ borderBottom: '1px solid #ddd', backgroundColor: '#f9f9f9' }}>
+                        <th style={{ padding: '8px' }}>Month</th>
+                        <th style={{ padding: '8px' }}>Income</th>
+                        <th style={{ padding: '8px' }}>Expenses</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.map((monthData, index) => (
+                        <tr key={index}>
+                            <td style={{ padding: '8px', textAlign: 'center' }}>{monthData.month}</td>
+                            <td style={{ padding: '8px', textAlign: 'center', color: 'green' }}>Rs. {monthData.income}</td>
+                            <td style={{ padding: '8px', textAlign: 'center', color: 'blue' }}>Rs. {monthData.expenses}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
 };
 
 export default BarChart;

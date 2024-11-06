@@ -1,4 +1,4 @@
-import axios from "axios";
+/*import axios from "axios";
 import {baseUrl} from "./config";
 
 export async function createAccount(token,name,currentBalance,paymentTypes){
@@ -34,3 +34,5 @@ export async function getAccount(token){
         headers: { Authorization: `Bearer ${token}` }
     })
 }
+
+*/

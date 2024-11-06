@@ -10,6 +10,8 @@ import TransactionScreen from './screens/TransactionScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import BudgetScreen from "./screens/BudgetScreen";
 import {changeIsMobile} from "./features/userSlice";
+import DebtScreen from './screens/DebtScreen';
+
 
 function App() {
     const dispatch = useDispatch();
@@ -27,10 +29,17 @@ function App() {
         <HashRouter>
             <Routes>
                 {/* Directly redirect root (/) to the dashboard */}
-                <Route path="/" element={<Navigate to="/dashboard" />} />
+                <Route path="/" element={<Navigate to="/landing" />} />
+                <Route path="/landing" element={<LandingScreen />} />
                 <Route path="/dashboard" element={<DashboardScreen />} />
-                <Route path="/account" element={<AccountScreen />} />
-               
+                <Route path="/accounts" element={<AccountScreen />} />
+                <Route path="/reports" element={<ReportScreen />} />
+                <Route path="/goals" element={<GoalScreen />} />
+                <Route path="/transactions" element={<TransactionScreen />} />
+                <Route path="/profile" element={<ProfileScreen />} />
+                <Route path="/budgets" element={<BudgetScreen />} />
+                <Route path="/landing" element={<LandingScreen />} />
+                <Route path="/debts" element={<DebtScreen/>} />
                 <Route path="/*" element={<p>Page not found</p>} />
             </Routes>
         </HashRouter>

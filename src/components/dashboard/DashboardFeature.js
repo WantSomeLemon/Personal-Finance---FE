@@ -1,3 +1,4 @@
+/*
 import {Grid, Paper, Text} from "@mantine/core";
 import {useSelector} from "react-redux";
 
@@ -68,3 +69,19 @@ export default function  DashboardFeture(){
         </div>
     )
 }
+*/
+
+
+// DashboardFeature.js
+import React from 'react';
+
+const DashboardFeature = ({ label, value }) => {
+    return (
+        <div style={{ padding: '10px', textAlign: 'center', flex: 1 }}>
+            <div style={{ fontSize: '18px', color: '#333' }}>{label}</div>
+            <strong style={{ fontSize: '20px', color: '#000' }}>{value}</strong>
+        </div>
+    );
+};
+
+export default DashboardFeature;

@@ -1,0 +1,145 @@
+.debt-list-container {
+    width: 100%;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Header section styling to place Add Debt button near the title */
+.header-section {
+    display: flex;
+    justify-content: flex-start; /* Align items to the left */
+    gap: 20px; /* Add space between the title and the button */
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.add-account-btn {
+    padding: 10px 20px;
+    background-color: #1a73e8; /* Màu nền cho nút thêm nợ */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.add-account-btn:hover {
+    background-color: #0b59d0; /* Màu nền khi hover */
+}
+
+.summary-section {
+    display: flex;
+    justify-content: flex-start; /* Align to the left */
+    gap: 50px; /* Space between the items */
+    margin-bottom: 20px;
+}
+
+.summary-item {
+    text-align: left; /* Align text to the left */
+    padding: 10px 15px;
+    background-color: #e9f4fe; /* Màu nền cho mục tóm tắt */
+    border-radius: 8px;
+}
+
+.summary-item p {
+    font-size: 24px;
+    margin: 0;
+    color: #333; /* Màu chữ cho mục tóm tắt */
+}
+
+.summary-item span {
+    color: #666; /* Màu chữ cho nhãn mục tóm tắt */
+}
+
+.total-amount {
+    color: #28a745; /* Màu xanh cho tổng số tiền */
+    font-weight: bold;
+}
+
+.account-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.account-table th, .account-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #dddddd;
+}
+
+.account-table th {
+    background-color: #f7f7f8; /* Màu nền cho tiêu đề bảng */
+    font-weight: bold;
+}
+
+.account-table tr:hover {
+    background-color: #f1f1f1; /* Màu nền khi hover trên hàng */
+}
+
+.edit-btn, .delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333; /* Màu chữ cho nút chỉnh sửa và xóa */
+}
+
+.edit-btn:hover {
+    color: #1a73e8; /* Màu chữ khi hover trên nút chỉnh sửa */
+}
+
+.delete-btn:hover {
+    color: #dc3545; /* Màu chữ khi hover trên nút xóa */
+}
+
+/* Modal overlay styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Màu nền mờ */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Đảm bảo nó nằm trên tất cả các phần tử khác */
+}
+
+/* Debt form container styles */
+.debt-form-container {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9; /* Màu nền cho bảng điền thông tin */
+    max-width: 400px;
+    width: 100%; /* Chiều rộng đáp ứng */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.debt-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.debt-form input {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.debt-form button {
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background-color: #4CAF50; /* Màu nền cho nút lưu */
+    color: white;
+    cursor: pointer ;
+}
+
+.debt-form button:hover {
+    background-color: #45a049; /* Màu nền khi hover trên nút lưu */
+}

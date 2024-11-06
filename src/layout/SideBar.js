@@ -1,4 +1,4 @@
-import {Box, Text, Navbar, Menu, NavLink, Button, Avatar, Grid, rem, Group} from "@mantine/core";
+/*import {Box, Text, Navbar, Menu, NavLink, Button, Avatar, Grid, rem, Group} from "@mantine/core";
 import { ReactComponent as DashboardIcon } from "../assets/Widget.svg";
 import { ReactComponent as DashboardIconBlue } from "../assets/Widget_Blue.svg";
 import { ReactComponent as TransactionsIcon } from "../assets/Collapse.svg";
@@ -299,6 +299,256 @@ export default function SideBar(props) {
 
         </Navbar.Section>
       </Navbar>
+    </div>
+  );
+}
+
+*/
+import {
+  Box,
+  Text,
+  Navbar,
+  Menu,
+  NavLink,
+  Button,
+  Avatar,
+  Grid,
+  rem,
+  Group,
+} from "@mantine/core";
+import { ReactComponent as DashboardIcon } from "../assets/Widget.svg";
+import { ReactComponent as DashboardIconBlue } from "../assets/Widget_Blue.svg";
+import { ReactComponent as TransactionsIcon } from "../assets/Collapse.svg";
+import { ReactComponent as TransactionsIconBlue } from "../assets/Collapse_Blue.svg";
+import { ReactComponent as AccountsIcon } from "../assets/Database.svg";
+import { ReactComponent as AccountsIconBlue } from "../assets/Database_fill_Blue.svg";
+import { ReactComponent as BudgetIcon } from "../assets/Date_range.svg";
+import { ReactComponent as BudgetIconBlue } from "../assets/Date_range_Blue.svg";
+import { ReactComponent as GoalsIcon } from "../assets/Road_finish.svg";
+import { ReactComponent as GoalsIconBlue } from "../assets/Road_finish_Blue.svg";
+import { ReactComponent as DebtsIcon } from "../assets/Calendar.svg";
+import { ReactComponent as DebtsIconBlue } from "../assets/Calendar_fill_Blue.svg";
+import { ReactComponent as ReportsIcon } from "../assets/Desk_alt.svg";
+import { ReactComponent as ReportsIconBlue } from "../assets/Desk_alt_Blue.svg";
+import { AddIcon } from "../assets/assets";
+import { ReactComponent as AddCategoryIcon } from "../assets/Folder_add_duotone_line.svg";
+import { ReactComponent as AddDebtIcon } from "../assets/Calendar_add_duotone.svg";
+import { ReactComponent as AddBudgetIcon } from "../assets/Date_range_duotone.svg";
+import { ReactComponent as AddTransactionIcon } from "../assets/Collapse_light_duotone.svg";
+import { ReactComponent as AddAccountIcon } from "../assets/Database_duotone.svg";
+import { ReactComponent as AddGoalIcon } from "../assets/Road_finish_duotone_line.svg";
+import { ReactComponent as AvatarIcon } from "../assets/User_duotone.svg";
+import React, { useState } from "react"; // Import useState
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  closeCategoryForm,
+  showCategoryForm,
+} from "../features/categorySlice";
+import {
+  closeTransactionForm,
+  showTransactionForm,
+} from "../features/transactionSlice";
+import { closeAccountForm, showAccountForm } from "../features/accountSlice";
+import { closeGoalForm, showGoalForm } from "../features/goalSlice";
+import { showBudgetForm } from "../features/budgetSlice";
+import DebtForm from '../components/debts/DebtForm'; // Ensure you import your DebtForm component
+import TransactionForm from '../components/transactions/TransactionForm'; // Import TransactionForm
+import AccountForm from '../components/accounts/AccountForm'; // Import AccountForm
+import GoalForm from '../components/goals/GoalForm'; // Import GoalForm
+import BudgetForm from '../components/budget/BudgetForm'; // Import BudgetForm
+
+export default function SideBar(props) {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const currentUser = useSelector((state) => state.user.currentUser);
+  
+  // State for showing the forms
+  const [isDebtFormVisible, setIsDebtFormVisible] = useState(false);
+  const [isTransactionFormVisible, setIsTransactionFormVisible] = useState(false);
+  const [isAccountFormVisible, setIsAccountFormVisible] = useState(false);
+  const [isGoalFormVisible, setIsGoalFormVisible] = useState(false);
+  const [isBudgetFormVisible, setIsBudgetFormVisible] = useState(false);
+
+  const navLinks = [
+    { name: "Dashboard", icon: DashboardIcon, iconBlue: DashboardIconBlue },
+    { name: "Transactions", icon: TransactionsIcon, iconBlue: TransactionsIconBlue },
+    { name: "Accounts", icon: AccountsIcon, iconBlue: AccountsIconBlue },
+    { name: "Budgets", icon: BudgetIcon, iconBlue: BudgetIconBlue },
+    { name: "Goals", icon: GoalsIcon, iconBlue: GoalsIconBlue },
+    { name: "Debts", icon: DebtsIcon, iconBlue: DebtsIconBlue },
+    { name: "Reports", icon: ReportsIcon, iconBlue: ReportsIconBlue },
+  ];
+
+  function navStyle() {
+    return props.isMobile ? { display: props.navOpened ? 'block' : 'none' } : {};
+  }
+
+  return (
+    <div>
+      <Navbar style={navStyle()} width={{ sm: 300, lg: 250, base: 0 }}>
+        <Navbar.Section grow>
+          <Box style={{ padding: 10 }}>
+            {props.isMobile && (
+              <Grid style={{ marginTop: 5 }}>
+                <Grid.Col style={{ display: 'flex', justifyContent: 'center' }}>
+                  <AvatarIcon
+                    style={{
+                      width: 100,
+                      height: 100,
+                      objectFit: "contain",
+                      borderStyle: "solid",
+                      borderWidth: 1,
+                      borderColor: "rgba(0,0,0,0.2)",
+                      borderRadius: "1000px",
+                    }}
+                  />
+                </Grid.Col>
+              </Grid>
+            )}
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <Button style={{ height: rem(58), marginBottom: 20 }} radius={"md"} variant={"subtle"}>
+                <Grid>
+                  <Grid.Col>
+                    <Group style={{ margin: 10 }}>
+                      <div style={{ flex: 1 }}>
+                        <Text size="lg" fw={700}>{currentUser.firstName}</Text>
+                        <Text c={"dimmed"} size="sm">
+                          {currentUser.email.length > 16 ? `${currentUser.email.slice(0, 16)}...` : currentUser.email}
+                        </Text>
+                      </div>
+                    </Group>
+                  </Grid.Col>
+                </Grid>
+              </Button>
+            </div>
+
+            {navLinks.map(({ name, icon: Icon, iconBlue: IconBlue }) => (
+              <NavLink
+                key={name}
+                style={{ borderRadius: 8, marginBottom: 10 }}
+                label={
+                  props.currentPage === name
+                    ? <Text size={"lg"} fw={600}>{name}</Text>
+                    : <Text size={"lg"}>{name}</Text>
+                }
+                icon={props.currentPage === name ? <IconBlue style={{ width: 22, height: 22 }} /> : <Icon style={{ width: 22, height: 22 }} />}
+                onClick={() => navigate(`/${name.toLowerCase()}`)}
+                active={props.currentPage === name}
+              />
+            ))}
+          </Box>
+        </Navbar.Section>
+        <Navbar.Section>
+          {!props.isMobile && (
+            <Menu position="right" radius={"md"} withArrow shadow="xl" width={200} transitionProps={{ transition: 'scale-x', duration: 150 }}>
+              <Menu.Target>
+                <div style={{ padding: 10 }}>
+                  <Button leftIcon={<AddIcon style={{ width: 16, height: 16 }} />} radius={"md"} fullWidth>
+                    Add
+                  </Button>
+                </div>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item
+                  icon={<AddCategoryIcon style={{ height: 20, width: 20 }} />}
+                  onClick={() => dispatch(showCategoryForm())}
+                >
+                  <Text size={"sm"}>Add Category</Text>
+                </Menu.Item>
+                <Menu.Item
+                  icon={<AddAccountIcon style={{ height: 20, width: 20 }} />}
+                  onClick={() => {
+                    setIsAccountFormVisible(true); // Show the AccountForm
+                  }}
+                >
+                  Add Account
+                </Menu.Item>
+                <Menu.Item
+                  icon={<AddTransactionIcon style={{ height: 20, width: 20 }} />}
+                  onClick={() => {
+                    setIsTransactionFormVisible(true); // Show the TransactionForm
+                  }}
+                >
+                  Add Transaction
+                  
+                </Menu.Item>
+                <Menu.Item
+                  icon={<AddBudgetIcon style={{ height: 20, width: 20 }} />}
+                  onClick={() => {
+                    setIsBudgetFormVisible(true); // Show the BudgetForm
+                  }}
+                >
+                  Add Budget
+                </Menu.Item>
+                <Menu.Item
+                  icon={<AddGoalIcon style={{ height: 20, width: 20 }} />}
+                  onClick={() => {
+                    setIsGoalFormVisible(true); // Show the GoalForm
+                  }}
+                >
+                  Add Goal
+                </Menu.Item>
+                <Menu.Item
+                  icon={<AddDebtIcon style={{ height: 20, width: 20 }} />}
+                  onClick={() => {
+                    setIsDebtFormVisible(true); // Show the DebtForm
+                  }}
+                >
+                  Add Debt
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          )}
+        </Navbar.Section>
+      </Navbar>
+
+      {/* Modals for showing the various forms */}
+      {isDebtFormVisible && (
+        <div className="modal-overlay">
+          <div className="debt-form-container">
+            <DebtForm
+              onClose={() => setIsDebtFormVisible(false)} // Close the DebtForm
+            />
+          </div>
+        </div>
+      )}
+      {isTransactionFormVisible && (
+        <div className="modal-overlay">
+          <div className="transaction-form-container">
+            <TransactionForm
+              onClose={() => setIsTransactionFormVisible(false)} // Close the TransactionForm
+            />
+          </div>
+        </div>
+      )}
+      {isAccountFormVisible && (
+        <div className="modal-overlay">
+          <div className="account-form-container">
+            <AccountForm
+              onClose={() => setIsAccountFormVisible(false)} // Close the AccountForm
+            />
+          </div>
+        </div>
+      )}
+      {isGoalFormVisible && (
+        <div className="modal-overlay">
+          <div className="goal-form-container">
+            <GoalForm
+              onClose={() => setIsGoalFormVisible(false)} // Close the GoalForm
+            />
+          </div>
+        </div>
+      )}
+      {isBudgetFormVisible && (
+        <div className="modal-overlay">
+          <div className="budget-form-container">
+            <BudgetForm
+              onClose={() => setIsBudgetFormVisible(false)} // Close the BudgetForm
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

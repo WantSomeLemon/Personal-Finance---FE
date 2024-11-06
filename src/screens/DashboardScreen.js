@@ -1,4 +1,5 @@
-import Layout from "../layout/Layout";
+
+/*import Layout from "../layout/Layout";
 import {validateToken} from "../features/userSlice";
 import {useDispatch, useSelector} from "react-redux";
 import {useEffect, useState} from "react";
@@ -110,3 +111,52 @@ export default function  DashboardScreen(){
         </Layout>
     )
 }
+    */
+
+// src/screens/DashboardScreen.js
+import React from 'react';
+import Layout from '../layout/Layout';
+import DashboardFeature from '../components/dashboard/DashboardFeature';
+import ExpensesPieChart from '../components/dashboard/ExpensesPieChart';
+import IncomePieChart from '../components/dashboard/IncomePieChart';
+import BarChart from '../components/dashboard/BarChart';
+import '../components/dashboard/DashboardScreen.css';
+
+const DashboardScreen = () => {
+  return (
+    <Layout>
+      <div className="dashboard-container">
+        <h2>Dashboard</h2>
+        <p>Test Content Here</p>
+        <div className="dashboard-summary">
+          <DashboardFeature label="Total Balance" value="Rs. 20,528" />
+          <DashboardFeature label="Budget Used" value="79%" />
+          <DashboardFeature label="Debts Pending" value="0" />
+          <DashboardFeature label="Goals Completed" value="0 / 0" />
+        </div>
+
+        <div className="dashboard-charts">
+          <div className="expense-income-section">
+            <div className="chart-container">
+              <h3>This Month Expenses</h3>
+              <ExpensesPieChart />
+              <p className="amount">Rs. 21,000</p>
+            </div>
+            <div className="chart-container">
+              <h3>This Month Income</h3>
+              <IncomePieChart />
+              <p className="amount income">Rs. 30,000</p>
+            </div>
+          </div>
+
+          <div className="barchart-container">
+            <h3>Last 6 months Income and Expenses</h3>
+            <BarChart />
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+export default DashboardScreen;

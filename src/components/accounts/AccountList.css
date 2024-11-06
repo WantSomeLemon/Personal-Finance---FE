@@ -1,0 +1,117 @@
+.account-list-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-section h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.add-account-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.summary-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.summary-item {
+    flex: 1;
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.summary-item p {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.summary-item span {
+    font-size: 14px;
+    color: #888;
+}
+
+.summary-item.balance p {
+    color: rgb(5, 170, 5);
+}
+
+.account-table {
+    width: 100%;
+    border-collapse: separate; /* Use separate border model */
+    border-spacing: 0 15px; /* Add spacing between rows */
+    margin-top: 20px;
+}
+
+.account-table th,
+.account-table td {
+    padding: 15px 20px; /* Increased padding for larger row height */
+    text-align: left;
+    font-weight: 500;
+    background-color: #fff; /* Background color for better row spacing effect */
+}
+
+.account-table th {
+    background-color: #f5f5f5;
+    color: #0a0a0a;
+}
+
+.account-table td:nth-child(4) {
+    color: rgb(9, 195, 9);
+}
+
+.edit-btn, .delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 8px;
+}
+
+.edit-btn {
+    color: #007bff;
+}
+
+.delete-btn {
+    color: #dc3545;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
