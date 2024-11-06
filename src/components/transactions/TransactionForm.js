@@ -232,106 +232,123 @@ export default function TransactionForm(props) {
 }
 
 */
-
-import React, { useEffect, useState } from 'react';
-import './TransactionForm.css';
+import React, { useEffect, useState } from "react";
+import "./TransactionForm.css";
 
 const TransactionForm = ({ transaction, onSave, onCancel }) => {
-    const [dateTime, setDateTime] = useState('');
-    const [transactionType, setTransactionType] = useState('');
-    const [category, setCategory] = useState('');
-    const [accountName, setAccountName] = useState('');
-    const [paymentMethod, setPaymentMethod] = useState('');
-    const [amount, setAmount] = useState('');
+  const [dateTime, setDateTime] = useState("");
+  const [transactionType, setTransactionType] = useState("");
+  const [category, setCategory] = useState("");
+  const [accountName, setAccountName] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [amount, setAmount] = useState("");
 
-    useEffect(() => {
-        if (transaction) {
-            setDateTime(transaction.dateTime);
-            setTransactionType(transaction.transactionType);
-            setCategory(transaction.category);
-            setAccountName(transaction.accountName);
-            setPaymentMethod(transaction.paymentMethod);
-            setAmount(transaction.amount);
-        } else {
-            resetForm();
-        }
-    }, [transaction]);
+  useEffect(() => {
+    if (transaction) {
+      // Chuyển đổi định dạng khi chỉnh sửa
+      const formattedDateTime = new Date(transaction.dateTime);
+      setDateTime(formattedDateTime.toISOString().slice(0, 16)); // Cắt phần mili giây
+      setTransactionType(transaction.transactionType);
+      setCategory(transaction.category);
+      setAccountName(transaction.accountName);
+      setPaymentMethod(transaction.paymentMethod);
+      setAmount(transaction.amount);
+    } else {
+      resetForm();
+    }
+  }, [transaction]);
 
-    const resetForm = () => {
-        setDateTime('');
-        setTransactionType('');
-        setCategory('');
-        setAccountName('');
-        setPaymentMethod('');
-        setAmount('');
+  const resetForm = () => {
+    setDateTime("");
+    setTransactionType("");
+    setCategory("");
+    setAccountName("");
+    setPaymentMethod("");
+    setAmount("");
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newTransaction = {
+      id: transaction ? transaction.id : null,
+      dateTime, // Giữ nguyên giá trị `dateTime` khi chỉnh sửa
+      transactionType,
+      category,
+      accountName,
+      paymentMethod,
+      amount: parseFloat(amount) || 0,
     };
+    onSave(newTransaction);
+    resetForm(); // Reset form sau khi lưu
+  };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const newTransaction = {
-            id: transaction ? transaction.id : null,
-            dateTime,
-            transactionType,
-            category,
-            accountName,
-            paymentMethod,
-            amount: parseFloat(amount) || 0,
-        };
-        onSave(newTransaction);
-        resetForm(); // Reset the form after saving
+  // Hàm để định dạng lại dateTime thành định dạng mong muốn (August 2, 2023 11:42:37 AM)
+  const formatDateTime = (date) => {
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
     };
+    return new Date(date).toLocaleString("en-US", options); // Định dạng theo chuẩn US (hoặc theo vùng của bạn)
+  };
 
-    return (
-        <div className="transaction-form">
-            <h3>{transaction ? 'Edit Transaction' : 'Add Transaction'}</h3>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="datetime-local"
-                    value={dateTime}
-                    onChange={(e) => setDateTime(e.target.value)}
-                    required
-                />
-                <input
-                    type="text"
-                    value={transactionType}
-                    onChange={(e) => setTransactionType(e.target.value)}
-                    placeholder="Transaction Type"
-                    required
-                />
-                <input
-                    type="text"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    placeholder="Category"
-                    required
-                />
-                <input
-                    type="text"
-                    value={accountName}
-                    onChange={(e) => setAccountName(e.target.value)}
-                    placeholder="Account Name"
-                    required
-                />
-                <input
-                    type="text"
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                    placeholder="Payment Method"
-                    required
-                />
-                <input
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="Amount"
-                    required
-                />
-                <button type="submit">Save Transaction</button>
-                <button type="button" onClick={onCancel}>Cancel</button>
-            </form>
-        </div>
-    );
+  return (
+    <div className="transaction-form">
+      <h3>{transaction ? "Edit Transaction" : "Add Transaction"}</h3>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="datetime-local"
+          value={dateTime} // Giá trị `dateTime` được giữ nguyên khi chỉnh sửa
+          onChange={(e) => setDateTime(e.target.value)}
+          required={!transaction} // Chỉ yêu cầu khi tạo mới giao dịch
+        />
+        <input
+          type="text"
+          value={transactionType}
+          onChange={(e) => setTransactionType(e.target.value)}
+          placeholder="Transaction Type"
+          required
+        />
+        <input
+          type="text"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          placeholder="Category"
+          required
+        />
+        <input
+          type="text"
+          value={accountName}
+          onChange={(e) => setAccountName(e.target.value)}
+          placeholder="Account Name"
+          required
+        />
+        <input
+          type="text"
+          value={paymentMethod}
+          onChange={(e) => setPaymentMethod(e.target.value)}
+          placeholder="Payment Method"
+          required
+        />
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="Amount"
+          required
+        />
+        <button type="submit">Save Transaction</button>
+        <button type="button" onClick={onCancel}>
+          Cancel
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default TransactionForm;
-

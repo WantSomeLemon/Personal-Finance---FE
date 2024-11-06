@@ -1,110 +1,166 @@
 .transaction-list-container {
-    padding: 20px;
-    font-family: 'Arial', sans-serif;
+  padding: 20px;
+  font-family: "Arial", sans-serif;
 }
 
 .header-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .header-section h2 {
-    font-size: 24px;
-    font-weight: bold;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .add-transaction-btn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size: 14px;
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+
+  transition: background-color 0.3s ease;
 }
 
 .add-transaction-btn:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
 }
 
 .filters {
-    display: flex;
-    justify-content: space-between;
-    margin: 20px 0;
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
 }
 
 .filters input[type="text"] {
-    padding: 8px;
-    width: 200px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
+  padding: 8px;
+  width: 200px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
 }
 
 .filters select {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
 }
 
 .transaction-table {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .transaction-table thead {
-    background-color: #f8f9fa;
-    text-align: left;
+  background-color: #f8f9fa;
+  text-align: left;
 }
 
-.transaction-table th, .transaction-table td {
-    padding: 15px;
-    border-bottom: 1px solid #ddd;
+.transaction-table th,
+.transaction-table td {
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
 }
 
 .transaction-table th {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .transaction-table td.positive {
-    color: green;
+  color: green;
 }
 
 .transaction-table td.negative {
-    color: red;
+  color: red;
 }
 
-.edit-btn, .delete-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
+.edit-btn,
+.delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
 }
 
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .transaction-type.spent {
-    color: red;
+  color: red;
 }
 
 .transaction-type.received {
-    color: green;
+  color: green;
 }
 
 .category-label {
-    background-color: #f0f0f0;
-    padding: 2px 5px;
-    border-radius: 3px;
-    font-weight: bold;
+  background-color: #f0f0f0;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 8px 15px;
+  font-size: 16px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  margin: 0 10px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #1976d2;
+}
+
+.pagination span {
+  font-size: 16px;
+  color: #555;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-overlay .modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
 }

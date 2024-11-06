@@ -125,81 +125,85 @@ export default function AccountForm(props) {
     )
 }
 */
-import React, { useState, useEffect } from 'react';
-import './AccountForm.css'; // Nhập tệp CSS
+import React, { useState, useEffect } from "react";
+import "./AccountForm.css"; // Nhập tệp CSS
 
 const AccountForm = ({ account, onClose, onSave }) => {
-    const [bank, setBank] = useState('');
-    const [deposit, setDeposit] = useState('');
-    const [withdrawal, setWithdrawal] = useState('');
-    const [balance, setBalance] = useState('');
+  const [bank, setBank] = useState("");
+  const [deposit, setDeposit] = useState("");
+  const [withdrawal, setWithdrawal] = useState("");
+  const [balance, setBalance] = useState("");
 
-    useEffect(() => {
-        if (account) {
-            setBank(account.bank);
-            setDeposit(account.deposit);
-            setWithdrawal(account.withdrawal);
-            setBalance(account.balance);
-        } else {
-            setBank('');
-            setDeposit('');
-            setWithdrawal('');
-            setBalance('');
-        }
-    }, [account]);
+  useEffect(() => {
+    if (account) {
+      setBank(account.bank);
+      setDeposit(account.deposit);
+      setWithdrawal(account.withdrawal);
+      setBalance(account.balance);
+    } else {
+      setBank("");
+      setDeposit("");
+      setWithdrawal("");
+      setBalance("");
+    }
+  }, [account]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const newAccount = {
-            id: account ? account.id : undefined,
-            bank,
-            deposit: Number(deposit),
-            withdrawal: Number(withdrawal),
-            balance: Number(balance),
-        };
-        onSave(newAccount);
-        onClose();
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newAccount = {
+      id: account ? account.id : undefined,
+      bank,
+      deposit: Number(deposit),
+      withdrawal: Number(withdrawal),
+      balance: Number(balance),
     };
+    onSave(newAccount);
+    onClose();
+  };
 
-    return (
-        <div className="account-form">
-            <h3>{account ? 'Edit Account' : 'Add Account'}</h3>
-            <form onSubmit={handleSubmit}>
-                <input 
-                    type="text" 
-                    value={bank} 
-                    onChange={(e) => setBank(e.target.value)} 
-                    placeholder="Bank Name" 
-                    required 
-                />
-                <input 
-                    type="number" 
-                    value={deposit} 
-                    onChange={(e) => setDeposit(e.target.value)} 
-                    placeholder="Deposit" 
-                    required 
-                />
-                <input 
-                    type="number" 
-                    value={withdrawal} 
-                    onChange={(e) => setWithdrawal(e.target.value)} 
-                    placeholder="Withdrawal" 
-                    required 
-                />
-                <input 
-                    type="number" 
-                    value={balance} 
-                    onChange={(e) => setBalance(e.target.value)} 
-                    placeholder="Balance" 
-                    required 
-                />
-                <div className="button-container">
-                    <button type="submit" className="save-button">{account ? 'Update' : 'Add'}</button>
-                    <button type="button" className="cancel-button" onClick={onClose}>Cancel</button>
-                </div>
-            </form>
+  return (
+    <div className="account-form">
+      <h3>{account ? "Edit Account" : "Add Account"}</h3>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={bank}
+          onChange={(e) => setBank(e.target.value)}
+          placeholder="Bank Name"
+          required
+        />
+        <input
+          type="number"
+          value={deposit}
+          onChange={(e) => setDeposit(e.target.value)}
+          placeholder="Deposit"
+          required
+        />
+        <input
+          type="number"
+          value={withdrawal}
+          onChange={(e) => setWithdrawal(e.target.value)}
+          placeholder="Withdrawal"
+          required
+        />
+        <input
+          type="number"
+          value={balance}
+          onChange={(e) => setBalance(e.target.value)}
+          placeholder="Balance"
+          required
+        />
+        <div className="button-container">
+          <button type="submit" className="save-button">
+            {account ? "Update" : "Add"}
+          </button>
+          <button type="button" className="cancel-button" onClick={onClose}>
+            Cancel
+          </button>
         </div>
-    );
+      </form>
+    </div>
+  );
 };
 
 export default AccountForm;

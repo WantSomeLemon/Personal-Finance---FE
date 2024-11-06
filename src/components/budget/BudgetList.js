@@ -136,112 +136,179 @@ export default function BudgetList() {
 
 }
 */
-
-import React, { useState } from 'react';
-import './BudgetList.css';
-import BudgetForm from './BudgetForm';
+import React, { useState } from "react";
+import "./BudgetList.css";
+import BudgetForm from "./BudgetForm";
 
 const BudgetList = () => {
-    const [budgets, setBudgets] = useState([
-        { id: 1, name: 'Groceries', budget: 8000, usedAmount: 5600 },
-        { id: 2, name: 'Food', budget: 7000, usedAmount: 6392 },
-        { id: 3, name: 'Rent', budget: 10000, usedAmount: 4500 },
-    ]);
+  const [budgets, setBudgets] = useState([
+    { id: 1, name: "Groceries", budget: 8000, usedAmount: 5600 },
+    { id: 2, name: "Food", budget: 7000, usedAmount: 6392 },
+    { id: 3, name: "Rent", budget: 10000, usedAmount: 4500 },
+    { id: 4, name: "Transport", budget: 5000, usedAmount: 3000 },
+    { id: 5, name: "Entertainment", budget: 6000, usedAmount: 2500 },
+    { id: 6, name: "Utilities", budget: 4000, usedAmount: 1000 },
+    { id: 7, name: "Education", budget: 3000, usedAmount: 2000 },
+    { id: 8, name: "Savings", budget: 20000, usedAmount: 15000 },
+  ]);
 
-    const [isFormVisible, setIsFormVisible] = useState(false);
-    const [editingBudget, setEditingBudget] = useState(null);
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [editingBudget, setEditingBudget] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
-    const handleAddClick = () => {
-        setEditingBudget(null);
-        setIsFormVisible(true);
-    };
+  const handleAddClick = () => {
+    setEditingBudget(null);
+    setIsFormVisible(true);
+  };
 
-    const handleEditClick = (budget) => {
-        setEditingBudget(budget);
-        setIsFormVisible(true);
-    };
+  const handleEditClick = (budget) => {
+    setEditingBudget(budget);
+    setIsFormVisible(true);
+  };
 
-    const handleDeleteClick = (id) => {
-        setBudgets(budgets.filter(budget => budget.id !== id));
-    };
+  const handleDeleteClick = (id) => {
+    const updatedBudgets = budgets.filter((budget) => budget.id !== id);
+    setBudgets(updatedBudgets);
 
-    const handleSaveBudget = (newBudget) => {
-        if (editingBudget) {
-            setBudgets(budgets.map(budget => (budget.id === newBudget.id ? newBudget : budget)));
-        } else {
-            setBudgets([...budgets, { ...newBudget, id: budgets.length ? budgets[budgets.length - 1].id + 1 : 1 }]);
-        }
-        setIsFormVisible(false);
-    };
+    // Cập nhật số lượng trang sau khi xóa
+    const newTotalPages = Math.ceil(updatedBudgets.length / itemsPerPage);
+    if (currentPage > newTotalPages) {
+      setCurrentPage(newTotalPages); // Trở về trang hợp lệ cuối cùng
+    }
+  };
 
-    const totalBudget = budgets.reduce((total, budget) => total + budget.budget, 0);
-    const totalUsed = budgets.reduce((total, budget) => total + budget.usedAmount, 0);
-    const totalLeft = totalBudget - totalUsed;
+  const handleSaveBudget = (newBudget) => {
+    if (editingBudget) {
+      setBudgets(
+        budgets.map((budget) =>
+          budget.id === newBudget.id ? newBudget : budget
+        )
+      );
+    } else {
+      setBudgets([
+        ...budgets,
+        {
+          ...newBudget,
+          id: budgets.length ? budgets[budgets.length - 1].id + 1 : 1,
+        },
+      ]);
+    }
+    setIsFormVisible(false);
+  };
 
-    return (
-        <div className="budget-list-container">
-            {/* Modal hiển thị khi isFormVisible là true */}
-            {isFormVisible && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <BudgetForm
-                            budget={editingBudget}
-                            onClose={() => setIsFormVisible(false)}
-                            onSave={handleSaveBudget}
-                        />
-                    </div>
-                </div>
-            )}
-            
-            <div className="header-section">
-                <h2>Budget Management</h2>
-                <button className="add-budget-btn" onClick={handleAddClick}>
-                    Add Budget
-                </button>
-            </div>
+  const totalBudget = budgets.reduce(
+    (total, budget) => total + budget.budget,
+    0
+  );
+  const totalUsed = budgets.reduce(
+    (total, budget) => total + budget.usedAmount,
+    0
+  );
+  const totalLeft = totalBudget - totalUsed;
 
-            <div className="summary-section">
-                <div className="summary-item">
-                    <p>Rs. {totalBudget.toLocaleString()}</p>
-                    <span>Total Budget</span>
-                </div>
-                <div className="summary-item">
-                    <p>Rs. {totalUsed.toLocaleString()}</p>
-                    <span>Total Used</span>
-                </div>
-                <div className="summary-item total-left">
-                    <p>Rs. {totalLeft.toLocaleString()}</p>
-                    <span>Total Left</span>
-                </div>
-            </div>
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentBudgets = budgets.slice(indexOfFirstItem, indexOfLastItem);
 
-            <table className="budget-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Budget</th>
-                        <th>Used Amount</th>
-                        <th>Balance Left</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {budgets.map(budget => (
-                        <tr key={budget.id}>
-                            <td>{budget.name}</td>
-                            <td>Rs. {budget.budget.toLocaleString()}</td>
-                            <td>Rs. {budget.usedAmount.toLocaleString()}</td>
-                            <td>Rs. {(budget.budget - budget.usedAmount).toLocaleString()}</td>
-                            <td>
-                                <button className="edit-btn" onClick={() => handleEditClick(budget)}>✎</button>
-                                <button className="delete-btn" onClick={() => handleDeleteClick(budget.id)}>🗑️</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const totalPages = Math.ceil(budgets.length / itemsPerPage);
+
+  return (
+    <div className="budget-list-container">
+      {isFormVisible && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <BudgetForm
+              budget={editingBudget}
+              onClose={() => setIsFormVisible(false)}
+              onSave={handleSaveBudget}
+            />
+          </div>
         </div>
-    );
+      )}
+
+      <div className="header-section">
+        <h2>Budget Management</h2>
+        <button className="add-budget-btn" onClick={handleAddClick}>
+          Add Budget
+        </button>
+      </div>
+
+      <div className="summary-section">
+        <div className="summary-item">
+          <p> {totalBudget.toLocaleString()} VND </p>
+          <span>Total Budget</span>
+        </div>
+        <div className="summary-item">
+          <p> {totalUsed.toLocaleString()} VND </p>
+          <span>Total Used</span>
+        </div>
+        <div className="summary-item total-left">
+          <p> {totalLeft.toLocaleString()} VND </p>
+          <span>Total Left</span>
+        </div>
+      </div>
+
+      <table className="budget-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Budget</th>
+            <th>Used Amount</th>
+            <th>Balance Left</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentBudgets.map((budget) => (
+            <tr key={budget.id}>
+              <td>{budget.name}</td>
+              <td>{budget.budget.toLocaleString()} VND </td>
+              <td> {budget.usedAmount.toLocaleString()} VND </td>
+              <td>
+                {" "}
+                {(budget.budget - budget.usedAmount).toLocaleString()} VND{" "}
+              </td>
+              <td>
+                <button
+                  className="edit-btn"
+                  onClick={() => handleEditClick(budget)}
+                >
+                  ✎
+                </button>
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDeleteClick(budget.id)}
+                >
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              className={`pagination-btn ${
+                currentPage === index + 1 ? "active" : ""
+              }`}
+              onClick={() => handlePageChange(index + 1)}
+            >
+              {index + 1}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default BudgetList;

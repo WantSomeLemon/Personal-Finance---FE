@@ -96,45 +96,111 @@ export default function TransactionScreen() {
   )
 }
 */
-import React, { useState } from 'react';
-import TransactionList from '../components/transactions/TransactionList';
-import Layout from '../layout/Layout';
+import React, { useState } from "react";
+import TransactionList from "../components/transactions/TransactionList";
+import Layout from "../layout/Layout";
 
 const TransactionScreen = () => {
-    const [transactions, setTransactions] = useState([
-        { id: 1, dateTime: 'August 2, 2023 11:42:37 AM', transactionType: 'Spent on', category: 'Utilities', accountName: 'Techcombank', paymentMethod: 'Cash', amount: -1000 },
-        { id: 2, dateTime: 'August 2, 2023 11:41:54 AM', transactionType: 'Spent on', category: 'Groceries', accountName: 'MBbank', paymentMethod: 'Cash', amount: -3000 },
-    ]);
+  const [transactions, setTransactions] = useState([
+    {
+      id: 1,
+      dateTime: "August 2, 2023 11:42:37 AM",
+      transactionType: "Spent on",
+      category: "Utilities",
+      accountName: "Techcombank",
+      paymentMethod: "Cash",
+      amount: -1000,
+    },
+    {
+      id: 2,
+      dateTime: "August 2, 2023 11:41:54 AM",
+      transactionType: "Spent on",
+      category: "Groceries",
+      accountName: "MBbank",
+      paymentMethod: "Cash",
+      amount: -3000,
+    },
+    {
+      id: 3,
+      dateTime: "August 2, 2023 11:41:54 AM",
+      transactionType: "Spent on",
+      category: "Food",
+      accountName: "MBbank",
+      paymentMethod: "Cash",
+      amount: -3000,
+    },
+    {
+      id: 4,
+      dateTime: "August 2, 2023 11:41:54 AM",
+      transactionType: "Spent on",
+      category: "Food",
+      accountName: "MBbank",
+      paymentMethod: "Cash",
+      amount: -3000,
+    },
+    {
+      id: 5,
+      dateTime: "August 2, 2023 11:41:54 AM",
+      transactionType: "Spent on",
+      category: "Food",
+      accountName: "MBbank",
+      paymentMethod: "Cash",
+      amount: -3000,
+    },
+    {
+      id: 6,
+      dateTime: "August 2, 2023 11:41:54 AM",
+      transactionType: "Spent on",
+      category: "Food",
+      accountName: "MBbank",
+      paymentMethod: "Cash",
+      amount: -3000,
+    },
+    {
+      id: 7,
+      dateTime: "August 2, 2023 11:41:54 AM",
+      transactionType: "Spent on",
+      category: "Food",
+      accountName: "MBbank",
+      paymentMethod: "Cash",
+      amount: -3000,
+    },
+  ]);
 
-    const handleSaveTransaction = (newTransaction) => {
-        if (newTransaction.id) {
-            // Update existing transaction
-            setTransactions(transactions.map(t => t.id === newTransaction.id ? { ...t, ...newTransaction } : t));
-        } else {
-            // Create new transaction
-            const newId = transactions.length > 0 ? Math.max(...transactions.map(t => t.id)) + 1 : 1;
-            setTransactions([...transactions, { ...newTransaction, id: newId }]);
-        }
-    };
+  const handleSaveTransaction = (newTransaction) => {
+    if (newTransaction.id) {
+      // Update existing transaction
+      setTransactions(
+        transactions.map((t) =>
+          t.id === newTransaction.id ? { ...t, ...newTransaction } : t
+        )
+      );
+    } else {
+      // Create new transaction
+      const newId =
+        transactions.length > 0
+          ? Math.max(...transactions.map((t) => t.id)) + 1
+          : 1;
+      setTransactions([...transactions, { ...newTransaction, id: newId }]);
+    }
+  };
 
-    const handleDeleteTransaction = (id) => {
-        setTransactions(transactions.filter(t => t.id !== id));
-    };
+  const handleDeleteTransaction = (id) => {
+    setTransactions(transactions.filter((t) => t.id !== id));
+  };
 
-    return (
-        <Layout title="Transactions" load={transactions.length > 0}>
-            <div className="transaction-screen">
-                <TransactionList 
-                    transactions={transactions} 
-                    onAddTransaction={handleSaveTransaction} // Pass the function to add transactions
-                    onEditTransaction={handleSaveTransaction} // Pass the same function for editing
-                    onDeleteTransaction={handleDeleteTransaction} 
-                />
-            </div>
-        </Layout>
-    );
+  return (
+    <Layout title="Transactions" load={transactions.length > 0}>
+      <div className="transaction-screen">
+        <TransactionList
+          transactions={transactions}
+          onAddTransaction={handleSaveTransaction} // Pass the function to add transactions
+          onEditTransaction={handleSaveTransaction} // Pass the same function for editing
+          onDeleteTransaction={handleDeleteTransaction}
+        />
+      </div>
+    </Layout>
+  );
 };
 
 export default TransactionScreen;
-
-

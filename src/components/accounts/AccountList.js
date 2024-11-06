@@ -121,113 +121,219 @@ export default function AccountList() {
         </div>
     );
 }*/
-
-
-import React, { useState } from 'react';
-import './AccountList.css';
-import AccountForm from './AccountForm';
+import React, { useState } from "react";
+import "./AccountList.css";
+import AccountForm from "./AccountForm";
 
 const AccountList = () => {
-    const [accounts, setAccounts] = useState([
-        { id: 1, bank: 'State Bank of India', deposit: 50788, withdrawal: 48185, balance: 2185 },
-        { id: 2, bank: 'Paytm Payment Bank', deposit: 20788, withdrawal: 2365, balance: 18305 },
-        { id: 3, bank: 'HDFC Bank', deposit: 15788, withdrawal: 14895, balance: 985 },
-    ]);
+  const [accounts, setAccounts] = useState([
+    {
+      id: 1,
+      bank: "MB Bank",
+      deposit: 50788,
+      withdrawal: 48185,
+      balance: 2185,
+    },
+    {
+      id: 2,
+      bank: "VIETTINBANK",
+      deposit: 20788,
+      withdrawal: 2365,
+      balance: 18305,
+    },
+    {
+      id: 3,
+      bank: "HDFC Bank",
+      deposit: 15788,
+      withdrawal: 14895,
+      balance: 985,
+    },
+    {
+      id: 4,
+      bank: "SCB Bank",
+      deposit: 50000,
+      withdrawal: 25000,
+      balance: 25000,
+    },
+    {
+      id: 5,
+      bank: "ACB Bank",
+      deposit: 30000,
+      withdrawal: 5000,
+      balance: 25000,
+    },
+    {
+      id: 6,
+      bank: "Techcombank",
+      deposit: 45000,
+      withdrawal: 15000,
+      balance: 30000,
+    },
+    {
+      id: 7,
+      bank: "Eximbank",
+      deposit: 32000,
+      withdrawal: 12000,
+      balance: 20000,
+    },
+    // Thêm các tài khoản khác nếu cần
+  ]);
 
-    const [isFormVisible, setIsFormVisible] = useState(false);
-    const [editingAccount, setEditingAccount] = useState(null);
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [editingAccount, setEditingAccount] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
-    const handleAddClick = () => {
-        setEditingAccount(null);
-        setIsFormVisible(true);
-    };
+  const pageSize = 6;
+  const totalPages = Math.ceil(accounts.length / pageSize);
 
-    const handleSaveAccount = (newAccount) => {
-        if (editingAccount) {
-            // Cập nhật tài khoản hiện có
-            setAccounts(accounts.map(account => 
-                account.id === newAccount.id ? newAccount : account
-            ));
-        } else {
-            // Thêm tài khoản mới
-            setAccounts([...accounts, { ...newAccount, id: accounts.length + 1 }]);
-        }
-        setIsFormVisible(false);
-    };
+  const handleAddClick = () => {
+    setEditingAccount(null);
+    setIsFormVisible(true);
+  };
 
-    const handleDeleteAccount = (id) => {
-        setAccounts(accounts.filter(account => account.id !== id));
-    };
+  const handleSaveAccount = (newAccount) => {
+    if (editingAccount) {
+      setAccounts(
+        accounts.map((account) =>
+          account.id === newAccount.id ? newAccount : account
+        )
+      );
+    } else {
+      setAccounts([...accounts, { ...newAccount, id: accounts.length + 1 }]);
+    }
+    setIsFormVisible(false);
+  };
 
-    const totalDeposit = accounts.reduce((total, account) => total + account.deposit, 0);
-    const totalWithdrawal = accounts.reduce((total, account) => total + account.withdrawal, 0);
-    const totalBalance = accounts.reduce((total, account) => total + account.balance, 0);
+  const handleDeleteAccount = (id) => {
+    const updatedAccounts = accounts.filter((account) => account.id !== id);
+    setAccounts(updatedAccounts);
 
-    return (
-        <div className="account-list-container">
-            <div className="header-section">
-                <h2>Accounts</h2>
-                <button className="add-account-btn" onClick={handleAddClick}>Add Account</button>
-            </div>
+    // Cập nhật số trang nếu cần sau khi xóa
+    const newTotalPages = Math.ceil(updatedAccounts.length / pageSize);
+    if (currentPage > newTotalPages) {
+      setCurrentPage(newTotalPages); // Điều chỉnh về trang hợp lệ cuối cùng
+    }
+  };
 
-            <div className="summary-section">
-                <div className="summary-item">
-                    <p>{accounts.length}</p>
-                    <span>Total Accounts</span>
-                </div>
-                <div className="summary-item">
-                    <p>Rs. {totalDeposit.toLocaleString()}</p>
-                    <span>Total Deposit</span>
-                </div>
-                <div className="summary-item">
-                    <p>Rs. {totalWithdrawal.toLocaleString()}</p>
-                    <span>Total Withdrawal</span>
-                </div>
-                <div className="summary-item balance">
-                    <p>Rs. {totalBalance.toLocaleString()}</p>
-                    <span>Total Balance</span>
-                </div>
-            </div>
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
-            <table className="account-table">
-                <thead>
-                    <tr>
-                        <th>Account Details</th>
-                        <th>Total Deposit</th>
-                        <th>Total Withdrawal</th>
-                        <th>Current Balance</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {accounts.map(account => (
-                        <tr key={account.id}>
-                            <td>{account.bank}</td>
-                            <td>Rs. {account.deposit.toLocaleString()}</td>
-                            <td>Rs. {account.withdrawal.toLocaleString()}</td>
-                            <td>Rs. {account.balance.toLocaleString()}</td>
-                            <td>
-                                <button className="edit-btn" onClick={() => { setEditingAccount(account); setIsFormVisible(true); }}>✎</button>
-                                <button className="delete-btn" onClick={() => handleDeleteAccount(account.id)}>🗑️</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+  const totalDeposit = accounts.reduce(
+    (total, account) => total + account.deposit,
+    0
+  );
+  const totalWithdrawal = accounts.reduce(
+    (total, account) => total + account.withdrawal,
+    0
+  );
+  const totalBalance = accounts.reduce(
+    (total, account) => total + account.balance,
+    0
+  );
 
-            {isFormVisible && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <AccountForm
-                            account={editingAccount}
-                            onClose={() => setIsFormVisible(false)}
-                            onSave={handleSaveAccount}
-                        />
-                    </div>
-                </div>
-            )}
+  const displayedAccounts = accounts.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  return (
+    <div className="account-management-container">
+      <div className="header-section">
+        <h2>Accounts</h2>
+        <button className="add-account-btn" onClick={handleAddClick}>
+          Add Account
+        </button>
+      </div>
+
+      <div className="summary-section">
+        <div className="summary-item">
+          <p>{accounts.length}</p>
+          <span>Total Accounts</span>
         </div>
-    );
+        <div className="summary-item">
+          <p>{totalDeposit.toLocaleString()} VND</p>
+          <span>Total Deposit</span>
+        </div>
+        <div className="summary-item">
+          <p>{totalWithdrawal.toLocaleString()} VND</p>
+          <span>Total Withdrawal</span>
+        </div>
+        <div className="summary-item balance">
+          <p>{totalBalance.toLocaleString()} VND</p>
+          <span>Total Balance</span>
+        </div>
+      </div>
+
+      <table className="account-table">
+        <thead>
+          <tr>
+            <th>Account Details</th>
+            <th>Total Deposit</th>
+            <th>Total Withdrawal</th>
+            <th>Current Balance</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {displayedAccounts.map((account) => (
+            <tr key={account.id}>
+              <td>{account.bank}</td>
+              <td>{account.deposit.toLocaleString()} VND</td>
+              <td>{account.withdrawal.toLocaleString()} VND</td>
+              <td>{account.balance.toLocaleString()} VND</td>
+              <td className="action-buttons">
+                <button
+                  className="edit-btn"
+                  onClick={() => {
+                    setEditingAccount(account);
+                    setIsFormVisible(true);
+                  }}
+                >
+                  ✎
+                </button>
+                <button
+                  className="delete-btn"
+                  onClick={() => handleDeleteAccount(account.id)}
+                >
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          {[...Array(totalPages)].map((_, index) => (
+            <button
+              key={index}
+              className={`pagination-btn ${
+                currentPage === index + 1 ? "active" : ""
+              }`}
+              onClick={() => handlePageChange(index + 1)}
+            >
+              {index + 1}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {isFormVisible && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <AccountForm
+              account={editingAccount}
+              onClose={() => setIsFormVisible(false)}
+              onSave={handleSaveAccount}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default AccountList;
+//aaaa

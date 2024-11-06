@@ -199,145 +199,239 @@ export default function TransactionList() {
 }
 
 */
-import React, { useState } from 'react';
-import './TransactionList.css';
-import TransactionForm from './TransactionForm';
+import React, { useState } from "react";
+import "./TransactionList.css";
+import TransactionForm from "./TransactionForm";
 
-const TransactionList = ({ transactions, onAddTransaction, onEditTransaction, onDeleteTransaction }) => {
-    const [isFormVisible, setIsFormVisible] = useState(false);
-    const [editingTransaction, setEditingTransaction] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filterCategory, setFilterCategory] = useState('');
+const TransactionList = ({
+  transactions,
+  onAddTransaction,
+  onEditTransaction,
+  onDeleteTransaction,
+}) => {
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const transactionsPerPage = 6;
 
-    // Filter and search transactions
-    const filteredTransactions = transactions.filter(transaction => {
-        return (
-            (transaction.category.toLowerCase().includes(filterCategory.toLowerCase()) || filterCategory === '') &&
-            (
-                transaction.transactionType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                transaction.accountName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                transaction.paymentMethod.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-        );
-    });
-
-    const handleAddClick = () => {
-        setEditingTransaction(null);
-        setIsFormVisible(true);
-    };
-
-    const handleEditClick = (transaction) => {
-        setEditingTransaction(transaction);
-        setIsFormVisible(true);
-    };
-
-    const handleDeleteClick = (id) => {
-        onDeleteTransaction(id);
-    };
-
-    const handleSaveTransaction = (newTransaction) => {
-        if (newTransaction.id) {
-            onEditTransaction(newTransaction);
-        } else {
-            onAddTransaction(newTransaction);
-        }
-        setIsFormVisible(false);
-    };
-
+  // Filter and search transactions
+  const filteredTransactions = transactions.filter((transaction) => {
     return (
-        <div className="transaction-list-container">
-            <div className="header-section">
-                <h2>Transactions</h2>
-                <button className="add-transaction-btn" onClick={handleAddClick}>
-                    Add Transactions
-                </button>
-            </div>
-
-            <div className="filters">
-                <input
-                    type="text"
-                    placeholder="Search..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <select 
-                    value={filterCategory} 
-                    onChange={(e) => setFilterCategory(e.target.value)}
-                >
-                    <option value="">All Categories</option>
-                    {[...new Set(transactions.map(t => t.category))].map(category => (
-                        <option key={category} value={category}>{category}</option>
-                    ))}
-                </select>
-            </div>
-
-            <table className="transaction-table">
-                <thead>
-                    <tr>
-                        <th>DATE & TIME</th>
-                        <th>TRANSACTION DETAILS</th>
-                        <th>ACCOUNT DETAILS</th>
-                        <th>AMOUNT</th>
-                        <th>EDIT</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredTransactions.length > 0 ? (
-                        filteredTransactions.map(transaction => (
-                            <tr key={transaction.id}>
-                                <td>
-                                    <div>{transaction.dateTime}</div>
-                                    <small>{transaction.time}</small>
-                                </td>
-                                <td>
-                                    {transaction.amount > 0 ? (
-                                        <span className="transaction-type received">
-                                            ↓ Received from: <span className="category-label">{transaction.category}</span>
-                                        </span>
-                                    ) : (
-                                        <span className="transaction-type spent">
-                                            ↑ Spent on: <span className="category-label">{transaction.category}</span>
-                                        </span>
-                                    )}
-                                    <div>Transaction ID: #{transaction.id}</div>
-                                </td>
-                                <td>
-    <div>{transaction.accountName}</div>
-    <small className="payment-method">{transaction.paymentMethod}</small>
-</td>
-
-                                <td className={transaction.amount > 0 ? 'positive' : 'negative'}>
-                                    {transaction.amount > 0 ? ` + ${transaction.amount}  VND` : `-  ${transaction.amount} VND`}
-                                </td>
-                                <td>
-                                    <button className="edit-btn" onClick={() => handleEditClick(transaction)}>✎</button>
-                                    <button className="delete-btn" onClick={() => handleDeleteClick(transaction.id)}>🗑️</button>
-                                </td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan="5">No transactions found</td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-
-            {isFormVisible && (
-                <div className="modal-overlay">
-                    <TransactionForm
-                        transaction={editingTransaction}
-                        onSave={handleSaveTransaction}
-                        onCancel={() => setIsFormVisible(false)}
-                    />
-                </div>
-            )}
-        </div>
+      (transaction.category
+        .toLowerCase()
+        .includes(filterCategory.toLowerCase()) ||
+        filterCategory === "") &&
+      (transaction.transactionType
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+        transaction.accountName
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        transaction.paymentMethod
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()))
     );
+  });
+
+  // Calculate the number of pages needed
+  const totalPages = Math.ceil(
+    filteredTransactions.length / transactionsPerPage
+  );
+
+  // Get the current page's transactions
+  const paginatedTransactions = filteredTransactions.slice(
+    (currentPage - 1) * transactionsPerPage,
+    currentPage * transactionsPerPage
+  );
+
+  const handleAddClick = () => {
+    setEditingTransaction(null);
+    setIsFormVisible(true);
+  };
+
+  const handleEditClick = (transaction) => {
+    setEditingTransaction(transaction);
+    setIsFormVisible(true);
+  };
+
+  const handleDeleteClick = (id) => {
+    onDeleteTransaction(id);
+
+    // Cập nhật lại trang hiện tại nếu cần sau khi xóa
+    const newTotalPages = Math.ceil(
+      (filteredTransactions.length - 1) / transactionsPerPage
+    );
+    if (currentPage > newTotalPages) {
+      setCurrentPage(newTotalPages); // Điều chỉnh về trang hợp lệ cuối cùng
+    }
+  };
+
+  const handleSaveTransaction = (newTransaction) => {
+    if (newTransaction.id) {
+      onEditTransaction(newTransaction);
+    } else {
+      onAddTransaction(newTransaction);
+    }
+    setIsFormVisible(false);
+  };
+
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  // Hàm để định dạng lại dateTime thành định dạng mong muốn (August 2, 2023 11:42:37 AM)
+  const formatDateTime = (date) => {
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    };
+    return new Date(date).toLocaleString("en-US", options); // Định dạng theo chuẩn US (hoặc theo vùng của bạn)
+  };
+
+  return (
+    <div className="transaction-list-container">
+      <div className="header-section">
+        <h2>Transactions</h2>
+        <button className="add-transaction-btn" onClick={handleAddClick}>
+          Add Transactions
+        </button>
+      </div>
+
+      <div className="filters">
+        <input
+          type="text"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <select
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+        >
+          <option value="">All Categories</option>
+          {[...new Set(transactions.map((t) => t.category))].map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <table className="transaction-table">
+        <thead>
+          <tr>
+            <th>DATE & TIME</th>
+            <th>TRANSACTION DETAILS</th>
+            <th>ACCOUNT DETAILS</th>
+            <th>AMOUNT</th>
+            <th>EDIT</th>
+          </tr>
+        </thead>
+        <tbody>
+          {paginatedTransactions.length > 0 ? (
+            paginatedTransactions.map((transaction) => (
+              <tr key={transaction.id}>
+                <td>
+                  {/* Hiển thị ngày giờ theo định dạng yêu cầu */}
+                  <div>{formatDateTime(transaction.dateTime)}</div>
+                </td>
+                <td>
+                  {transaction.amount > 0 ? (
+                    <span className="transaction-type received">
+                      ↓ Received from:{" "}
+                      <span className="category-label">
+                        {transaction.category}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="transaction-type spent">
+                      ↑ Spent on:{" "}
+                      <span className="category-label">
+                        {transaction.category}
+                      </span>
+                    </span>
+                  )}
+                  <div>Transaction ID: #{transaction.id}</div>
+                </td>
+                <td>
+                  <div>{transaction.accountName}</div>
+                  <small className="payment-method">
+                    {transaction.paymentMethod}
+                  </small>
+                </td>
+
+                <td
+                  className={transaction.amount > 0 ? "positive" : "negative"}
+                >
+                  {transaction.amount > 0
+                    ? `+${transaction.amount} VND`
+                    : `${transaction.amount} VND`}
+                </td>
+                <td>
+                  <button
+                    className="edit-btn"
+                    onClick={() => handleEditClick(transaction)}
+                  >
+                    ✎
+                  </button>
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDeleteClick(transaction.id)}
+                  >
+                    🗑️
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="5">No transactions found</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Prev
+          </button>
+          <span>
+            {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
+
+      {isFormVisible && (
+        <div className="modal-overlay">
+          <TransactionForm
+            transaction={editingTransaction}
+            onSave={handleSaveTransaction}
+            onCancel={() => setIsFormVisible(false)}
+          />
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default TransactionList;
-
-
-
-
