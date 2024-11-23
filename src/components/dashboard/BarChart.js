@@ -1,19 +1,19 @@
-import React, {useEffect, useState} from 'react';
-import {Bar} from 'react-chartjs-2';
+import { Skeleton } from "@mantine/core";
+import axios from "axios";
 import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
     BarElement,
+    CategoryScale,
+    Chart as ChartJS,
+    Legend,
+    LinearScale,
     Title,
     Tooltip,
-    Legend,
 } from 'chart.js';
-import {useSelector} from "react-redux";
-import axios from "axios";
-import {baseUrl} from "../../api/config";
-import {Skeleton} from "@mantine/core";
-import {ReactComponent as NoDataSVG} from "../../assets/No-data-1.svg";
+import React, { useEffect, useState } from 'react';
+import { Bar } from 'react-chartjs-2';
+import { useSelector } from "react-redux";
+import { baseUrl } from "../../api/config";
+import { ReactComponent as NoDataSVG } from "../../assets/No-data-1.svg";
 
 ChartJS.register(
     CategoryScale,
@@ -28,10 +28,11 @@ const BarChart = () => {
     const token  = useSelector(state => state.user.token)
     const [barChartLoading,setBarChartLoading] = useState(false)
     const isMobile = useSelector(state => state.user.isMobile)
+    const localToken = localStorage.getItem('token');
     useEffect(() =>{
         setBarChartLoading(true)
         axios.get(`${baseUrl}/dashboard/monthly-data`,{
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${localToken}` }
         }).then((res) =>{
             setBarChartLoading(false)
             setResult(res.data.data)

@@ -1,18 +1,18 @@
+import { notifications } from "@mantine/notifications";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   createAccountService,
-  loginAccountService,
-  validateTokenService,
-  editNameService,
   editEmailService,
-  editPasswordService,
   editImageService,
-  verifySecurityCode,
+  editNameService,
+  editPasswordService,
+  loginAccountService,
+  resetPassword,
   sendVerificationSecurityCode,
   sendVerificationSecurityCodeForFP,
-  resetPassword,
-} from "../api/userApi";
-import { notifications } from "@mantine/notifications";
+  validateTokenService,
+  verifySecurityCode,
+} from "../api/userService";
 import { ReactComponent as SuccessIcon } from "../assets/success-icon.svg";
 
 export const createAccount = createAsyncThunk(
@@ -209,15 +209,19 @@ export const userSlice = createSlice({
     },
     openSignupForm: (state) => {
       state.displaySignupForm = true;
+      state.signupInProgress = false;
+      state.signupInProgress = false;
     },
     openSigninForm: (state) => {
       state.displaySigninForm = true;
+      state.signinInProgress = false;
     },
     openForgotPasswordForm: (state) => {
       state.displaySigninForm = false;
       state.displayForgotPasswordForm = true;
       state.displayMailForm = true;
       state.displayOtpForm = false;
+
       state.displayPasswordForm = false;
     },
     closeForgotPasswordForm: (state) => {
@@ -225,12 +229,20 @@ export const userSlice = createSlice({
     },
     closeSignupForm: (state) => {
       state.displaySignupForm = false;
+      state.signupInProgress = false;
+      state.signupInProgress = false;
     },
     closeSigninForm: (state) => {
+      state.signupInProgress = false;
+      state.signupInProgress = false;
+
       state.displaySigninForm = false;
     },
     changeIsMobile: (state, action) => {
       state.isMobile = action.payload;
+    },
+    setCredentials: (state, { payload }) => {
+      state.token = payload;
     },
   },
   extraReducers: {
@@ -282,7 +294,8 @@ export const userSlice = createSlice({
     },
     [loginAccount.fulfilled]: (state, action) => {
       state.signinInProgress = false;
-      console.log(action);
+      state.isLandingPage = false;
+      localStorage.setItem("token", action.payload.data.token);
       if (action.payload.message === "success") {
         state.token = action.payload.data.token;
         state.displaySigninForm = false;
@@ -295,6 +308,7 @@ export const userSlice = createSlice({
           autoClose: 5000,
         });
       }
+      window.location.reload();
     },
     [loginAccount.rejected]: (state) => {
       state.signinInProgress = false;
@@ -507,5 +521,6 @@ export const {
   openForgotPasswordForm,
   closeForgotPasswordForm,
   changeIsMobile,
+  setCredentials,
 } = userSlice.actions;
 export default userSlice.reducer;

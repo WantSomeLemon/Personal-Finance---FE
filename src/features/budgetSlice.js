@@ -1,12 +1,12 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import {
-  createBudget,
-  deleteBudget,
-  getBudget,
-  updateBudget,
-} from "../api/budgetApi";
-import _ from "lodash";
 import { notifications } from "@mantine/notifications";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import _ from "lodash";
+import {
+    createBudget,
+    deleteBudget,
+    getBudget,
+    updateBudget,
+} from "../api/budgetService";
 import { ReactComponent as SuccessIcon } from "../assets/success-icon.svg";
 
 export const addBudget = createAsyncThunk("budget/addBudget", async (body) => {
