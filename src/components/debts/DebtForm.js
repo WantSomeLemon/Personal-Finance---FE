@@ -1,117 +1,138 @@
-import React, { useState, useEffect } from 'react';
-//import './DebtForm.css'; // Đảm bảo bạn có file CSS cho DebtForm
+import {
+    Button,
+    Container,
+    Grid, LoadingOverlay,
+    Modal,
+    NumberInput,
+    Select,
+    Text, TextInput,
+    Title
+} from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addDebt, closeDebtForm, fetchDebt } from "../../features/debtSlice";
 
-const DebtForm = ({ debt, onClose, onSave }) => {
-    const [formData, setFormData] = useState({
-        creditor: '',
-        amount: '',
-        dueDate: '',
-        notes: '',
-        isPaid: false,
-        paidDate: '',
-        owner: ''
-    });
+function DebtForm(props) {
+  const dispatch = useDispatch();
+  const token = useSelector(state => state.user.token);
+  const addDebtInProcess = useSelector(state => state.debt.addDebtInProcess);
+  const [showCancel, setShowCancel] = useState(false);
+  const form = useForm({
+    initialValues: {
+      moneyFrom: '',
+      amount: '',
+      dueDate: '',
+      status: ''
+    },
+    validate: {
+      moneyFrom: (value) => (
+        value !== '' ? null : 'Money From is required'
+      ),
+      amount: (value) => (
+        value !== '' ? null : 'Enter Amount'
+      ),
+      dueDate: (value) => (
+        value !== '' ? null : 'Enter Due Date'
+      ),
+      status: (value) => (
+        value !== '' ? null : 'Enter Status'
+      ),
+    }
+  });
 
-    useEffect(() => {
-        if (debt) {
-            setFormData({
-                creditor: debt.creditor,
-                amount: debt.amount,
-                dueDate: debt.dueDate,
-                notes: debt.notes,
-                isPaid: debt.isPaid,
-                paidDate: debt.paidDate || '',
-                owner: debt.owner || ''
-            });
-        } else {
-            setFormData({ creditor: '', amount: '', dueDate: '', notes: '', isPaid: false, paidDate: '', owner: '' });
-        }
-    }, [debt]);
+  async function handleSubmit() {
+    await dispatch(addDebt({ ...form.values, token: token }));
+    await dispatch(fetchDebt({ token: token }));
+    form.reset();
+  }
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
-    };
+  function handleCancel() {
+    form.reset();
+    setShowCancel(false);
+    dispatch(closeDebtForm());
+  }
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+  function handleCancelConfirm() {
+    setShowCancel(false);
+  }
 
-        // Kiểm tra dữ liệu đầu vào
-        if (formData.amount <= 0) {
-            alert("Amount must be a positive number.");
-            return;
-        }
-
-        if (!formData.owner) {
-            alert("Owner field cannot be empty.");
-            return;
-        }
-
-        // Nếu đã thanh toán, tự động điền ngày thanh toán với ngày hiện tại
-        const updatedData = {
-            ...formData,
-            amount: parseFloat(formData.amount),
-            id: debt ? debt.id : null,
-            paidDate: formData.isPaid ? (formData.paidDate || new Date().toISOString().split('T')[0]) : ''
-        };
-
-        onSave(updatedData);
-        alert(`Debt ${debt ? 'updated' : 'added'} successfully!`); // Thông báo thành công
-        onClose();
-    };
-
-    return (
-        <div className="debt-form-container">
-            <h3 className="form-title">{debt ? 'Edit Debt' : 'Add Debt'}</h3>
-            <form onSubmit={handleSubmit} className="debt-form">
-                {['creditor', 'amount', 'dueDate', 'notes', 'owner'].map((field, idx) => (
-                    <div className="form-group" key={idx}>
-                        <label className="form-label">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
-                        <input
-                            type={field === 'amount' ? 'number' : field === 'dueDate' ? 'date' : 'text'}
-                            name={field}
-                            value={formData[field]}
-                            onChange={handleChange}
-                            required={field !== 'notes'} // 'notes' field is optional
-                            className="form-input"
-                        />
-                    </div>
-                ))}
-
-                <div className="form-group">
-                    <label className="form-label">Is Paid</label>
-                    <input
-                        type="checkbox"
-                        name="isPaid"
-                        checked={formData.isPaid}
-                        onChange={handleChange}
-                        className="form-checkbox"
-                    />
-                </div>
-
-                {formData.isPaid && (
-                    <div className="form-group">
-                        <label className="form-label">Paid Date</label>
-                        <input
-                            type="date"
-                            name="paidDate"
-                            value={formData.paidDate || ''}
-                            onChange={handleChange}
-                            className="form-input"
-                        />
-                    </div>
-                )}
-
-                <div className="form-actions">
-                    <button type="submit" className ="btn btn-primary">{debt ? 'Update Debt' : 'Add Debt'}</button>
-                    <button type="button" onClick={onClose} className="btn btn-secondary">Cancel</button>
-                </div>
-            </form>
-        </div>
-    );
-};
-
+  return (
+    <Modal overlayProps={{
+      color: "white",
+      opacity: 0.55,
+      blur: 3,
+    }} withCloseButton={false} closeOnClickOutside={true} radius="lg" size="sm" opened={props.open}
+           onClose={() => {
+             props.close();
+           }} centered>
+      <LoadingOverlay visible={addDebtInProcess} overlayBlur={2}/>
+      <Title style={{ marginLeft: 10, marginBottom: 20 }} order={3}>Add Debt</Title>
+      <Container size="md">
+        <form onSubmit={form.onSubmit((values) => handleSubmit())}>
+          <TextInput
+            label="Money From"
+            placeholder="Enter Money From"
+            {...form.getInputProps("moneyFrom")}
+            style={{ marginBottom: 20 }}
+          />
+          <NumberInput
+            label="Amount"
+            placeholder="Enter Amount"
+            hideControls
+            {...form.getInputProps("amount")}
+            style={{ marginBottom: 20 }}
+          />
+          <TextInput
+            label="Due Date"
+            placeholder="Select Due Date"
+            type="date"
+            {...form.getInputProps("dueDate")}
+            style={{ marginBottom: 20 }}
+          />
+          <Select
+            label="Status"
+            placeholder="Select Status"
+            data={[
+              { value: 'pending', label: 'Pending' },
+              { value: 'paid', label: 'Paid' },
+              { value: 'overdue', label: 'Overdue' }
+            ]}
+            {...form.getInputProps("status")}
+            style={{ marginBottom: 20 }}
+          />
+          <Grid style={{ marginTop: 16, marginBottom: 10 }} gutter={5} gutterXs="md" gutterMd="xl" gutterXl={50}>
+            <Grid.Col span={"auto"}>
+              <Button radius="md" variant={"default"}
+                      fullWidth onClick={handleCancel}>Cancel</Button>
+            </Grid.Col>
+            <Grid.Col span={"auto"}>
+              <Button radius="md" fullWidth type="submit">Save</Button>
+            </Grid.Col>
+          </Grid>
+        </form>
+      </Container>
+      <Modal
+        overlayProps={{
+          color: "red",
+          blur: 3,
+        }}
+        size="auto" withinPortal={true} closeOnClickOutside={false} trapFocus={false} withOverlay={false} opened={showCancel} onClose={handleCancelConfirm} radius="lg" centered withCloseButton={false} title="Confirm">
+        <Text size={"sm"} c={"dimmed"} style={{ marginBottom: 10 }}>You will lose all entered data</Text>
+        <Grid>
+          <Grid.Col span={"auto"}>
+            <Button radius="md" variant={"default"} fullWidth onClick={() => setShowCancel(false)}>
+              No
+            </Button>
+          </Grid.Col>
+          <Grid.Col span={"auto"}>
+            <Button color={"red"} onClick={() => handleCancel()} radius="md" fullWidth>
+              Yes
+            </Button>
+          </Grid.Col>
+        </Grid>
+      </Modal>
+    </Modal>
+  );
+}
 export default DebtForm;

@@ -1,4 +1,3 @@
-/*
 import { Grid, Title, Button } from '@mantine/core';
 import {showGoalForm} from "../../features/goalSlice";
 import {useDispatch} from "react-redux";
@@ -19,4 +18,3 @@ export default function GoalHeader() {
         </div>
     )
 }
-*/

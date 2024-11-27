@@ -1,49 +1,141 @@
-import LandingScreen from './screens/LandingScreen';
-import DashboardScreen from './screens/DashboardScreen';
+import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
+import { changeIsMobile } from "./features/userSlice";
 import AccountScreen from "./screens/AccountScreen";
-import ReportScreen from './screens/ReportScreen';
-import GoalScreen from './screens/GoalScreen';
-import {Route, Routes, Navigate, HashRouter} from "react-router-dom";
-import {useDispatch} from "react-redux";
-import React, {useEffect} from "react";
-import TransactionScreen from './screens/TransactionScreen';
-import ProfileScreen from './screens/ProfileScreen';
 import BudgetScreen from "./screens/BudgetScreen";
-import {changeIsMobile} from "./features/userSlice";
-import DebtScreen from './screens/DebtScreen';
-
-
+import DashboardScreen from "./screens/DashboardScreen";
+import DebtScreen from "./screens/DebtScreen";
+import GoalScreen from "./screens/GoalScreen";
+import LandingScreen from "./screens/LandingScreen";
+import ProfileScreen from "./screens/ProfileScreen";
+import ReportScreen from "./screens/ReportScreen";
+import TransactionScreen from "./screens/TransactionScreen";
+import lodash from "lodash";
 function App() {
-    const dispatch = useDispatch();
-    useEffect(() => {
-        const handleResize = () => {
-            dispatch(changeIsMobile(window.innerWidth <= 768)); // Adjust the breakpoint as needed
-        };
+  const dispatch = useDispatch();
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     dispatch(changeIsMobile(window.innerWidth <= 768)); // Adjust the breakpoint as needed
+  //   };
 
-        window.addEventListener('resize', handleResize);
-        handleResize();
-        return () => window.removeEventListener('resize', handleResize);
-    }, [dispatch]);
+  //   // Add event listener on component mount
+  //   window.addEventListener("resize", handleResize);
 
-    return (
-        <HashRouter>
-            <Routes>
-                {/* Directly redirect root (/) to the dashboard */}
-                <Route path="/" element={<Navigate to="/landing" />} />
-                <Route path="/landing" element={<LandingScreen />} />
-                <Route path="/dashboard" element={<DashboardScreen />} />
-                <Route path="/accounts" element={<AccountScreen />} />
-                <Route path="/reports" element={<ReportScreen />} />
-                <Route path="/goals" element={<GoalScreen />} />
-                <Route path="/transactions" element={<TransactionScreen />} />
-                <Route path="/profile" element={<ProfileScreen />} />
-                <Route path="/budgets" element={<BudgetScreen />} />
-                <Route path="/landing" element={<LandingScreen />} />
-                <Route path="/debts" element={<DebtScreen/>} />
-                <Route path="/*" element={<p>Page not found</p>} />
-            </Routes>
-        </HashRouter>
-    );
+  //   // Call handleResize once on component mount
+  //   handleResize();
+  //   console.log(window.innerWidth <= 768);
+  //   // Cleanup the event listener on component unmount
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, [window]);
+  useEffect(() => {
+    const handleResize = lodash.debounce(() => {
+      dispatch(changeIsMobile(window.innerWidth <= 768)); // Adjust the breakpoint as needed
+    }, 200); // Adjust the debounce delay as needed
+
+    // Add event listener on component mount
+    window.addEventListener("resize", handleResize);
+    // Call handleResize once on component mount
+    handleResize();
+    console.log(window.innerWidth <= 768);
+    // Cleanup the event listener on component unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, [dispatch]);
+  return (
+    <HashRouter>
+      <Routes>
+        <Route
+          exact
+          path="/"
+          element={
+            <AlreadyLoggedin>
+              <LandingScreen></LandingScreen>
+            </AlreadyLoggedin>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <RequireAuth>
+              <DashboardScreen />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/account"
+          element={
+            <RequireAuth>
+              <AccountScreen />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/report"
+          element={
+            <RequireAuth>
+              <ReportScreen />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/goal"
+          element={
+            <RequireAuth>
+              <GoalScreen />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/transaction"
+          element={
+            <RequireAuth>
+              <TransactionScreen />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <RequireAuth>
+              <ProfileScreen />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/budget"
+          element={
+            <RequireAuth>
+              <BudgetScreen />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/debts"
+          element={
+            <RequireAuth>
+              <DebtScreen />
+            </RequireAuth>
+          }
+        />
+        <Route path="/*" element={<p>Page not found</p>} />
+      </Routes>
+    </HashRouter>
+  );
+}
+
+function RequireAuth({ children }) {
+  const token = localStorage.getItem("token");
+  if (token === null) {
+    return <Navigate to="/" />;
+  } else {
+    return children;
+  }
+}
+
+function AlreadyLoggedin({ children }) {
+  const token = localStorage.getItem("token");
+  console.log(token);
+  return token !== null ? <Navigate to="/dashboard" /> : children;
 }
 
 export default App;

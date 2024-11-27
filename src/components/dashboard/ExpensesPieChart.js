@@ -1,21 +1,20 @@
-/*
-import React, {useEffect, useState} from 'react';
-import { Pie } from 'react-chartjs-2';
+import { Grid, Skeleton } from "@mantine/core";
+import axios from "axios";
 import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
     ArcElement,
+    CategoryScale,
+    Chart as ChartJS,
+    Legend,
+    LinearScale,
     Title,
     Tooltip,
-    Legend,
 } from 'chart.js';
-import {useSelector} from "react-redux";
-import axios from "axios";
-import {baseUrl} from "../../api/config";
+import React, { useEffect, useState } from 'react';
+import { Pie } from 'react-chartjs-2';
+import { useSelector } from "react-redux";
 import tinycolor from 'tinycolor2';
-import {Grid, Skeleton} from "@mantine/core";
-import {ReactComponent as NoDataSVG} from "../../assets/No-data-1.svg";
+import { baseUrl } from "../../api/config";
+import { ReactComponent as NoDataSVG } from "../../assets/No-data-1.svg";
 
 ChartJS.register(
     CategoryScale,
@@ -31,7 +30,7 @@ const ExpensesPieChart = (props) => {
     const [pieChartLoading,setPieChartLoading] = useState(false)
     const isMobile = useSelector(state => state.user.isMobile)
     let tempresult=[];
-    const token  = useSelector(state => state.user.token)
+    const token  = localStorage.getItem('token')
     useEffect(() =>{
         setPieChartLoading(true)
         axios.get(`${baseUrl}/dashboard/this-month/expenses`,{
@@ -143,27 +142,6 @@ const ExpensesPieChart = (props) => {
             </div>
         }
     </div>
-};
-
-export default ExpensesPieChart;
-*/
-
-
-// ExpensesPieChart.js
-import React from 'react';
-
-const ExpensesPieChart = ({ data, title, amount }) => {
-    return (
-        <div style={{ width: '45%' }}>
-            <h3>{title}</h3>
-            <div style={{ color: 'blue', fontSize: '20px' }}>{amount}</div>
-            <ul>
-                {data.map((category, index) => (
-                    <li key={index} style={{ color: 'lightblue' }}>{category.name}: {category.value}%</li>
-                ))}
-            </ul>
-        </div>
-    );
 };
 
 export default ExpensesPieChart;

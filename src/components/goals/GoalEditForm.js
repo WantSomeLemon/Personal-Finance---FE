@@ -1,4 +1,3 @@
-/*
 import {
     TextInput,
     Title,
@@ -138,5 +137,3 @@ export default function GoalEditForm(props){
         </Modal>
     )
 }
-
-*/

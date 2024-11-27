@@ -1,4 +1,3 @@
-/*
 import {Button, Grid, Title} from '@mantine/core';
 import {useDispatch} from "react-redux";
 import {showBudgetForm} from "../../features/budgetSlice";
@@ -24,4 +23,3 @@ export default function BudgetHeader() {
             </div>
     )
 }
-*/

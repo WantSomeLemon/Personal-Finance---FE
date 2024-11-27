@@ -16,24 +16,26 @@ import { DateTimePicker } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  editTransaction,
+  addTransaction,
+  closeTransactionForm,
   fetchTransaction,
-  removeTransaction,
 } from "../../features/transactionSlice";
 import { fetchAccount } from "../../features/accountSlice";
 import { useEffect, useState } from "react";
 import { fetchCategory } from "../../features/categorySlice";
 
-export default function TransactionEditForm(props) {
+export default function TransactionForm(props) {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.user.token);
+  const isMobile = useSelector((state) => state.user.isMobile);
   useSelector((state) => state.transaction.addTransactionInProcess);
+  useEffect(() => {
+    dispatch(fetchCategory({ token: token }));
+    dispatch(fetchAccount({ token: token }));
+  }, [dispatch, token]);
   const [showDiscard, setShowDiscard] = useState(false);
   const categoryList = useSelector((state) => state.category.categoryList);
   const accountList = useSelector((state) => state.account.accountList);
-  const editTransactionInProcess = useSelector(
-    (state) => state.transaction.editTransactionInProcess
-  );
   const form = useForm({
     initialValues: {
       amount: "",
@@ -52,41 +54,23 @@ export default function TransactionEditForm(props) {
     },
   });
 
-  useEffect(() => {
-    dispatch(fetchCategory({ token: token }));
-    dispatch(fetchAccount({ token: token }));
-    form.setFieldValue("amount", props?.element?.amount);
-    form.setFieldValue("categoryId", props?.element?.category?.categoryId);
-    form.setFieldValue("paymentType", props?.element?.paymentType);
-    form.setFieldValue("description", props?.element?.description);
-    const date = new Date(props?.element?.dateTime);
-    form.setFieldValue("dateTime", date);
-    form.setFieldValue("type", props?.element?.category?.type);
-    form.setFieldValue("accountId", props?.element?.account?.accountId);
-  }, [
-    dispatch,
-    form,
-    props?.element?.account?.accountId,
-    props?.element?.amount,
-    props?.element?.category?.categoryId,
-    props?.element?.category?.type,
-    props?.element?.dateTime,
-    props?.element?.description,
-    props?.element?.paymentType,
-    token,
-  ]);
+  function handleDiscard() {
+    form.reset();
+    setShowDiscard(false);
+    dispatch(closeTransactionForm());
+  }
 
   function handleDiscardCancel() {
     setShowDiscard(false);
   }
 
-  async function handleEditTransaction(values) {
+  async function handleAddTransaction(values) {
+    console.log(values);
     await dispatch(
-      editTransaction({
+      addTransaction({
         ...form.values,
         token: token,
         dateTime: form.values.dateTime.getTime(),
-        transactionId: props.element.id,
       })
     );
     await dispatch(fetchTransaction({ token: token }));
@@ -138,23 +122,6 @@ export default function TransactionEditForm(props) {
       }
     });
   }
-  function handleCancel() {
-    form.reset();
-    props.close();
-  }
-
-  console.log("--------", form.isTouched());
-
-  async function handleDelete() {
-    await dispatch(
-      removeTransaction({ token: token, transactionId: props.element.id })
-    );
-    await dispatch(fetchTransaction({ token: token }));
-    await dispatch(fetchAccount({ token: token }));
-    form.reset();
-    props.close();
-  }
-
   return (
     <>
       <Modal
@@ -173,45 +140,42 @@ export default function TransactionEditForm(props) {
         }}
         centered
       >
-        <Title
-          style={{ marginLeft: 10 }}
-          order={3}
-        >{`Edit Transaction: `}</Title>
-        <form onSubmit={form.onSubmit((values) => handleEditTransaction())}>
+        <Title style={{ marginLeft: 10 }} order={3}>
+          Add Transaction
+        </Title>
+        <form
+          onSubmit={form.onSubmit((values) => handleAddTransaction(values))}
+        >
           <Grid style={{ margin: 10 }}>
-            <Grid.Col span={6}>
-              <Container size="md">
-                <DateTimePicker
-                  radius="md"
-                  dropdownType="modal"
-                  valueFormat="DD MMM YYYY hh:mm A"
-                  label="Date and time"
-                  placeholder="Pick date and time"
-                  maw={400}
-                  mx="auto"
-                  {...form.getInputProps("dateTime")}
-                />
-                <TextInput
-                  radius="md"
-                  style={{ marginTop: 16 }}
-                  label="Amount"
-                  placeholder="Vd: 500,000"
-                  type="number"
-                  {...form.getInputProps("amount")}
-                  withAsterisk
-                />
-                <Textarea
-                  radius="md"
-                  style={{ marginTop: 16 }}
-                  placeholder="Enter Description"
-                  label="Description"
-                  autosize
-                  minRows={4}
-                  {...form.getInputProps("description")}
-                />
-              </Container>
+            <Grid.Col span={12} md={6}>
+              <DateTimePicker
+                radius="md"
+                dropdownType="modal"
+                valueFormat="DD MMM YYYY hh:mm A"
+                label="Date and time"
+                placeholder="Pick date and time"
+                {...form.getInputProps("dateTime")}
+              />
+              <TextInput
+                radius="md"
+                style={{ marginTop: 16 }}
+                label="Amount"
+                placeholder="Vd: 500,000"
+                type="number"
+                {...form.getInputProps("amount")}
+                withAsterisk
+              />
+              <Textarea
+                radius="md"
+                style={{ marginTop: 16 }}
+                placeholder="Enter Description"
+                label="Description"
+                autosize
+                minRows={4}
+                {...form.getInputProps("description")}
+              />
             </Grid.Col>
-            <Grid.Col span={6}>
+            <Grid.Col span={12} md={6}>
               <Select
                 radius="md"
                 label="Category"
@@ -286,30 +250,15 @@ export default function TransactionEditForm(props) {
                 <Grid.Col span={"auto"}>
                   <Button
                     radius="md"
-                    color="red"
+                    variant={"default"}
                     fullWidth
                     onClick={() => setShowDiscard(true)}
                   >
-                    Delete
+                    Discard
                   </Button>
                 </Grid.Col>
                 <Grid.Col span={"auto"}>
-                  <Button
-                    radius="md"
-                    variant={"default"}
-                    fullWidth
-                    onClick={() => handleCancel()}
-                  >
-                    Cancel
-                  </Button>
-                </Grid.Col>
-                <Grid.Col span={"auto"}>
-                  <Button
-                    loading={editTransactionInProcess}
-                    radius="md"
-                    fullWidth
-                    type="submit"
-                  >
+                  <Button radius="md" fullWidth type="submit">
                     Save
                   </Button>
                 </Grid.Col>
@@ -332,10 +281,10 @@ export default function TransactionEditForm(props) {
           radius="lg"
           centered
           withCloseButton={false}
-          title="Confirm Delete"
+          title="Confirm Discard"
         >
           <Text size={"sm"} c={"dimmed"} style={{ marginBottom: 10 }}>
-            This will delete this transaction.
+            You will lose all the content you entered
           </Text>
           <Grid>
             <Grid.Col span={"auto"}>
@@ -345,18 +294,18 @@ export default function TransactionEditForm(props) {
                 fullWidth
                 onClick={() => setShowDiscard(false)}
               >
-                No, Cancel
+                No
               </Button>
             </Grid.Col>
             <Grid.Col span={"auto"}>
               <Button
                 color={"red"}
-                onClick={() => handleDelete()}
+                onClick={() => handleDiscard()}
                 radius="md"
                 fullWidth
                 type="submit"
               >
-                Yes, Delete
+                Yes
               </Button>
             </Grid.Col>
           </Grid>

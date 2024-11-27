@@ -1,288 +1,168 @@
-import React, { useState } from 'react';
-import './DebtList.css';
-import DebtForm from './DebtForm';
+import { Avatar, Card, Grid, Pagination, Table, Text } from "@mantine/core";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { ReactComponent as EditSVG } from "../../assets/Edit.svg";
+import { fetchDebt } from "../../features/debtSlice";
+import DebtEditForm from "./DebtEditForm";
 
-const DebtList = () => {
-    const [debts, setDebts] = useState([
-        {
-            id: 1,
-            creditor: 'State Bank of Vietnam',
-            amount: 50788,
-            dueDate: '2024-12-01',
-            notes: 'Monthly payment',
-            isPaid: false,
-            paidDate: null,
-            isDeleted: false,
-            owner: 'John Doe'
-        },
-        {
-            id: 2,
-            creditor: 'Paytm Payment Bank',
-            amount: 20788,
-            dueDate: '2024-11-15',
-            notes: 'Credit card payment',
-            isPaid: false,
-            paidDate: null,
-            isDeleted: false,
-            owner: 'Jane Smith'
-        },
-        {
-            id: 3,
-            creditor: 'HDFC Bank',
-            amount: 15788,
-            dueDate: '2024-10-30',
-            notes: 'Personal loan',
-            isPaid: true,
-            paidDate: '2024-10-01',
-            isDeleted: false,
-            owner: 'Alice Johnson'
-        },
-        // Thêm dữ liệu nợ khác nếu cần
-    ]);
+export default function DebtList() {
+  const dispatch = useDispatch();
+  const [displayDebtEditForm, setDisplayDebtEditForm] = useState(false);
+  const [selectedEditElement, setSelectedEditElement] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const isMobile = useSelector((state) => state.user.isMobile);
+  const token = useSelector((state) => state.user.token);
 
-    const [isFormVisible, setIsFormVisible] = useState(false);
-    const [editingDebt, setEditingDebt] = useState(null);
+  const itemsPerPage = 6;
+  const debtList = useSelector((state) => state.debt.debtList);
+  const totalPages = Math.ceil(debtList.length / itemsPerPage);
+  console.log("123", debtList);
+  useEffect(() => {
+    dispatch(fetchDebt(123));
+  }, [dispatch]);
 
-    const handleAddClick = () => {
-        setEditingDebt(null);
-        setIsFormVisible(true);
-    };
+  function handleDebtEditFormClose() {
+    setDisplayDebtEditForm(false);
+  }
 
-    const handleEditClick = (debt) => {
-        setEditingDebt(debt);
-        setIsFormVisible(true);
-    };
+  function handleDebtEditFormOpen(element) {
+    setSelectedEditElement(element);
+    setDisplayDebtEditForm(true);
+  }
 
-    const handleDeleteClick = (id) => {
-        setDebts(debts.map(debt => (debt.id === id ? { ...debt, isDeleted: true } : debt)));
-    };
+  const currentData = debtList.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
-    const handleSaveDebt = (newDebt) => {
-        if (editingDebt) {
-            setDebts(debts.map(debt => (debt.id === newDebt.id ? { ...newDebt, isPaid: newDebt.isPaid ? 1 : 0 } : debt)));
-        } else {
-            setDebts([...debts, { ...newDebt, id: debts.length + 1, isPaid: newDebt.isPaid ? 1 : 0 }]);
-        }
-        setIsFormVisible(false);
-    };
+  const rows = currentData.map((element) => {
+    const formattedDueDate = new Date(element.dueDate).toLocaleDateString();
+    const cardContent = (
+      <div>
+        <Grid>
+          <Grid.Col span={2}>
+            <Avatar color="blue" radius="xl">
+              {element.user.firstName.slice(0, 2).toUpperCase()}
+            </Avatar>
+          </Grid.Col>
+          <Grid.Col span={10}>
+            <Text
+              fw={"600"}
+              style={{ marginBottom: 8 }}
+              fz={"sm"}
+            >{`${element.moneyFrom} (${element.status})`}</Text>
+            <Text
+              style={{ marginTop: 8, fontSize: 10 }}
+            >{`Due Date: ${formattedDueDate}`}</Text>
+            <Text
+              style={{ marginTop: 8, fontSize: 10 }}
+            >{`Amount: ${element.amount}`}</Text>
+            <Text
+              style={{ marginTop: 8, fontSize: 10 }}
+            >{`User: ${element.user.firstName} ${element.user.lastName}`}</Text>
+          </Grid.Col>
+        </Grid>
+      </div>
+    );
 
-    const totalDebt = debts
-        .filter(debt => !debt.isDeleted)
-        .reduce((total, debt) => total + debt.amount, 0);
+    if (isMobile) {
+      return (
+        <Card
+          key={element.debtId}
+          radius="md"
+          p="md"
+          withBorder
+          style={{ marginBottom: 8 }}
+        >
+          {cardContent}
+        </Card>
+      );
+    }
 
     return (
-        <div className={`debt-list-container ${isFormVisible ? 'hidden' : ''}`}>
-            <div className="header-section">
-                <h2>Debt Management</h2>
-                <button className="add-account-btn" onClick={handleAddClick}>
-                    Add Debt
-                </button>
-            </div>
-
-            <div className="summary-section">
-                <div className="summary-item">
-                    <p>{debts.filter(debt => !debt.isDeleted).length}</p>
-                    <span>Total Debts</span>
-                </div>
-                <div className="summary-item total-amount">
-                    <p>Rs . {totalDebt.toLocaleString()}</p>
-                    <span>Total Amount</span>
-                </div>
-            </div>
-
-            <table className="account-table">
-                <thead>
-                    <tr>
-                        <th>Creditor</th>
-                        <th>Amount</th>
-                        <th>Due Date</th>
-                        <th>Notes</th>
-                        <th>Is Paid</th>
-                        <th>Paid Date</th>
-                        <th>Owner</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {debts.filter(debt => !debt.isDeleted).map(debt => (
-                        <tr key={debt.id}>
-                            <td>{debt.creditor}</td>
-                            <td>Rs. {debt.amount.toLocaleString()}</td>
-                            <td>{debt.dueDate}</td>
-                            <td>{debt.notes}</td>
-                            <td>{debt.isPaid ? 'Paid' : 'Unpaid'}</td>
-                            <td>{debt.paidDate || '-'}</td>
-                            <td>{debt.owner}</td>
-                            <td>
-                                <button className="edit-btn" onClick={() => handleEditClick(debt)}>✎</button>
-                                <button className="delete-btn" onClick={() => handleDeleteClick(debt.id)}>🗑️</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-
-            {isFormVisible && (
-                <div className="modal-overlay">
-                    <div className="debt-form-container">
-                        <DebtForm
-                            debt={editingDebt}
-                            onClose={() => setIsFormVisible(false)}
-                            onSave={handleSaveDebt}
-                        />
-                    </div>
-                </div>
-            )}
-        </div>
+      <tr key={element.debtId}>
+        <td>
+          <Text fw={700}>{element.moneyFrom}</Text>
+        </td>
+        <td>
+          <Text fw={700}>{`${element.amount} .VND`}</Text>
+        </td>
+        <td>
+          <Text fw={700}>{formattedDueDate}</Text>
+        </td>
+        <td>
+          <Text
+            fw={700}
+            style={{ color: element.status === "Paid" ? "#26AB35" : "#FF0000" }}
+          >
+            {element.status}
+          </Text>
+        </td>
+        <td>
+          <Text
+            fw={700}
+          >{`${element.user.firstName} ${element.user.lastName}`}</Text>
+        </td>
+        <td>
+          <EditSVG onClick={() => handleDebtEditFormOpen(element)} />
+        </td>
+      </tr>
     );
-};
+  });
 
-export default DebtList;
-
-
-
-
-/*
-// api 
-import React, { useState, useEffect } from 'react';
-import './DebtList.css';
-import DebtForm from './DebtForm';
-
-const DebtList = () => {
-    const [debts, setDebts] = useState([]);
-    const [isFormVisible, setIsFormVisible] = useState(false);
-    const [editingDebt, setEditingDebt] = useState(null);
-
-    // Fetch debts from the API on component mount
-    useEffect(() => {
-        const fetchDebts = async () => {
-            try {
-                const response = await fetch('/api/debts'); // cái đường dẫn trên posman 
-                const data = await response.json();
-                setDebts(data);
-            } catch (error) {
-                console.error('Error fetching debts:', error);
-            }
-        };
-
-        fetchDebts();
-    }, []);
-
-    const handleAddClick = () => {
-        setEditingDebt(null);
-        setIsFormVisible(true);
-    };
-
-    const handleEditClick = (debt) => {
-        setEditingDebt(debt);
-        setIsFormVisible(true);
-    };
-
-    const handleDeleteClick = async (id) => {
-        try {
-            await fetch(`/api/debts/${id}`, { method: 'DELETE' }); // Adjust the API endpoint as needed
-            setDebts(debts.filter(debt => debt.id !== id));
-        } catch (error) {
-            console.error('Error deleting debt:', error);
-        }
-    };
-
-    const handleSaveDebt = async (newDebt) => {
-        if (editingDebt) {
-            // Update existing debt
-            try {
-                const response = await fetch(`/api/debts/${editingDebt.id}`, {
-                    method: 'PUT',
-                    
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newDebt),
-                });
-                const updatedDebt = await response.json();
-                setDebts(debts.map(debt => (debt.id === updatedDebt.id ? updatedDebt : debt)));
-            } catch (error) {
-                console.error('Error updating debt:', error);
-            }
-        } else {
-            // Add new debt
-            try {
-                const response = await fetch('/api/debts', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newDebt),
-                });
-                const addedDebt = await response.json();
-                setDebts([...debts, addedDebt]);
-            } catch (error) {
-                console.error('Error adding debt:', error);
-            }
-        }
-        setIsFormVisible(false);
-    };
-
-    const totalDebt = debts.reduce((total, debt) => total + debt.amount, 0);
-
-    return (
-        <div className="debt-list-container">
-            <div className="header-section">
-                <h2>Debt Management</h2>
-                <button className="add-account-btn" onClick={handleAddClick}>
-                    Add Debt
-                </button>
-            </div>
-
-            <div className="summary-section">
-                <div className="summary-item">
-                    <p>{debts.length}</p>
-                    <span>Total Debts</span>
-                </div>
-                <div className="summary-item total-amount">
-                    <p>Rs. {totalDebt.toLocaleString()}</p>
-                    <span>Total Amount</span>
-                </div>
-            </div>
-
-            <table className="account-table">
-                <thead>
-                    <tr>
-                        <th>Creditor</th>
-                        <th>Amount</th>
-                        <th>Due Date</th>
-                        <th>Notes</th>
-                        <th>Is Paid</th>
-                        <th>Paid Date</th>
-                        <th>Owner</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {debts.map(debt => (
-                        <tr key={debt.id}>
-                            <td>{debt.creditor}</td>
-                            <td>Rs. {debt.amount.toLocaleString()}</td>
-                            <td>{debt.dueDate}</td>
-                            <td>{debt.notes}</td>
-                            <td>{debt.isPaid ? 'Paid' : 'Unpaid'}</td>
-                            <td>{debt.paidDate || '-'}</td>
-                            <td>{debt.owner}</td>
-                            <td>
-                                <button className="edit-btn" onClick={() => handleEditClick(debt)}>✎</button>
-                                <button className="delete-btn" onClick={() => handleDeleteClick(debt.id)}>🗑️</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-
-            {isFormVisible && (
-                <DebtForm
-                    debt={editingDebt}
-                    onClose={() => setIsFormVisible(false)}
-                    onSave={handleSaveDebt}
-                />
-            )}
+  return (
+    <div>
+      {displayDebtEditForm && (
+        <DebtEditForm
+          element={selectedEditElement}
+          open={displayDebtEditForm}
+          close={handleDebtEditFormClose}
+        />
+      )}
+      {isMobile ? (
+        <div>
+          <Text fw={"700"} style={{ marginBottom: 3, marginTop: 28 }}>
+            This month
+          </Text>
+          <Text fz={"xs"} style={{ marginBottom: 10 }}>
+            All your Debts for this month
+          </Text>
+          <div>{rows}</div>
         </div>
-    );
-};
-
-export default DebtList;
-*/
+      ) : (
+        <Table verticalSpacing="md">
+          <thead>
+            <tr>
+              <th>
+                <Text c="dimmed">MONEY FROM</Text>
+              </th>
+              <th>
+                <Text c="dimmed">AMOUNT</Text>
+              </th>
+              <th>
+                <Text c="dimmed">DUE DATE</Text>
+              </th>
+              <th>
+                <Text c="dimmed">STATUS</Text>
+              </th>
+              <th>
+                <Text c="dimmed">USER</Text>
+              </th>
+              <th>
+                <Text c="dimmed">EDIT</Text>
+              </th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>
+      )}
+      <Pagination
+        total={totalPages}
+        value={currentPage}
+        onChange={setCurrentPage}
+        position="center"
+        mt="md"
+      />
+    </div>
+  );
+}

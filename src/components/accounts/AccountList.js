@@ -1,233 +1,153 @@
-/*
-import {Text, Table, Card, Grid, Badge, BackgroundImage} from '@mantine/core';
-import {ReactComponent as EditSVG} from '../../assets/Edit.svg';
-//import Account_Background from "../../assets/Acc_Background.svg";
-import {useSelector} from "react-redux";
-import {useState} from "react";
+import { Badge, Card, Grid, Pagination, Table, Text } from "@mantine/core";
+import { useState } from "react";
+import { useSelector } from "react-redux";
+import { ReactComponent as EditSVG } from "../../assets/Edit.svg";
 import AccountEditForm from "./AccountEditForm";
 
-
-
-
 export default function AccountList() {
-    const accountList = useSelector(state => state.account.accountList)
-    const isMobile = useSelector(state => state.user.isMobile)
-    const [displayAccountEditForm, setDisplayAccountEditForm] = useState(false);
-    const [selectedEditElement, setSelectedEditElement] = useState(null);
-    function handleEdit(element) {
-        setSelectedEditElement(element)
-        setDisplayAccountEditForm(true)
+  const accountList = useSelector((state) => state.account.accountList);
+  const isMobile = useSelector((state) => state.user.isMobile);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [displayAccountEditForm, setDisplayAccountEditForm] = useState(false);
+  const [selectedEditElement, setSelectedEditElement] = useState(null);
+
+  const itemsPerPage = 6; // Số phần tử trên mỗi trang
+  const totalPages = Math.ceil(accountList.length / itemsPerPage);
+
+  // Lấy danh sách tài khoản hiển thị trên trang hiện tại
+  const currentData = accountList.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  function handleEdit(element) {
+    setSelectedEditElement(element);
+    setDisplayAccountEditForm(true);
+  }
+
+  function handleAccountEditFormClose() {
+    setDisplayAccountEditForm(false);
+  }
+
+  const rows = currentData.map((element) => {
+    const cardContent = (
+      <div>
+        <div style={{ margin: 10 }}>
+          <Grid>
+            <Grid.Col style={{ marginLeft: "auto" }} span={"content"}>
+              <Badge size={"xl"} radius="md" variant="dot">
+                {element.name}
+              </Badge>
+            </Grid.Col>
+          </Grid>
+          <Grid>
+            <Grid.Col span={"content"}>
+              <Text style={{ marginTop: 20 }}>Total Available Balance</Text>
+              <Badge variant="filled" size={"xl"}>
+                <Text fw={700}>
+                  VND. {element.currentBalance}
+                </Text>
+              </Badge>
+            </Grid.Col>
+          </Grid>
+          <Grid>
+            <Grid.Col style={{ marginLeft: "auto" }} span={"content"}>
+              <Text style={{ marginTop: 28 }} size={"xs"}>
+                {element.paymentTypes}
+              </Text>
+            </Grid.Col>
+          </Grid>
+        </div>
+      </div>
+    );
+
+    if (isMobile) {
+      return (
+        <Card
+          key={element.accountId}
+          radius="md"
+          withBorder
+          style={{ marginBottom: 8, padding: 0, borderWidth: 1.5 }}
+        >
+          {cardContent}
+        </Card>
+      );
     }
 
-    function handleAccountEditFormClose() {
-        setDisplayAccountEditForm(false)
-    }
-
-    const rows = accountList.map((element) => {
-        const cardContent = (
-            <div>
-                <div style={{margin:10}}>
-                    <Grid>
-                        <Grid.Col style={{marginLeft: 'auto'}} span={"content"}>
-                            <Badge size={"xl"} radius="md" variant="dot">{element.name}</Badge>
-                        </Grid.Col>
-                    </Grid>
-                    <Grid>
-                        <Grid.Col span={"content"}>
-                            <Text style={{marginTop: 20}}>Total Available Balance</Text>
-                            <Badge variant="filled" size={"xl"}><Text
-                                         fw={700}>Rs. {element.currentBalance.toLocaleString('en-US')}</Text></Badge>
-                        </Grid.Col>
-                    </Grid>
-                    <Grid>
-                        <Grid.Col style={{marginLeft: 'auto'}} span={"content"}>
-                            <Text style={{marginTop: 28}} size={"xs"}>{element.paymentTypes.join(' • ')}</Text>
-                        </Grid.Col>
-                    </Grid>
-                </div>
-            </div>
-
-        );
-
-        if (isMobile) {
-            return (
-                <Card key={element.accountId} radius="md" withBorder style={{marginBottom: 8,padding:0, borderWidth:1.5}}>
-                    {cardContent}
-                </Card>
-            );
-        }
-
-        // For desktop view, render a table row
-        return (
-            <tr key={element.accountId}>
-                <td>
-                    <Text fw={700}>{element.name}</Text>
-                </td>
-                <td>
-                    <Text fw={700}>{`Rs. ${element.totalIncome.toLocaleString('en-US')}`}</Text>
-                </td>
-                <td>
-                    <Text fw={700}>{`Rs. ${element.totalExpenses.toLocaleString('en-US')}`}</Text>
-                </td>
-                <td>
-                    <Text fw={700} style={{color: '#26AB35'}}>
-                        {`Rs. ${element.currentBalance.toLocaleString('en-US')}`}
-                    </Text>
-                </td>
-                <td>{<EditSVG onClick={() => handleEdit(element)}/>}</td>
-            </tr>
-        );
-    });
-
+    // For desktop view, render a table row
     return (
+      <tr key={element.accountId}>
+        <td>
+          <Text fw={700}>{element.name}</Text>
+        </td>
+        <td>
+          <Text fw={700}>{`${element.totalIncome } .VND`}</Text>
+        </td>
+        <td>
+          <Text fw={700}>{`${element.totalExpense } .VND`}</Text>
+        </td>
+        <td>
+          <Text fw={700} style={{ color: "#26AB35" }}>
+            {`${element.currentBalance.toLocaleString("en-US")} .VND`}
+          </Text>
+        </td>
+        <td>{<EditSVG onClick={() => handleEdit(element)} />}</td>
+      </tr>
+    );
+  });
+
+  return (
+    <div>
+      {displayAccountEditForm && (
+        <AccountEditForm
+          element={selectedEditElement}
+          open={displayAccountEditForm}
+          close={handleAccountEditFormClose}
+        />
+      )}
+      {isMobile ? (
         <div>
-            {displayAccountEditForm && (
-                <AccountEditForm
-                    element={selectedEditElement}
-                    open={displayAccountEditForm}
-                    close={handleAccountEditFormClose}
-                />
-            )}
-            {isMobile ? (
-                <div>
-                    <Text fw={"700"} style={{marginBottom:3,marginTop:28}}>Your Accounts</Text>
-                    <Text fz={"xs"} style={{marginBottom:10}}>Accounts with the current balance</Text>
-                    <div>{rows}</div>
-                </div>
-            ) : (
-                <Table verticalSpacing="lg">
-                    <thead>
-                    <tr>
-                        <th>
-                            <Text c="dimmed">ACCOUNT DETAILS</Text>
-                        </th>
-                        <th>
-                            <Text c="dimmed">TOTAL INCOME</Text>
-                        </th>
-                        <th>
-                            <Text c="dimmed">TOTAL EXPENSES</Text>
-                        </th>
-                        <th>
-                            <Text c="dimmed">CURRENT BALANCE</Text>
-                        </th>
-                        <th>
-                            <Text c="dimmed">EDIT</Text>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody>{rows}</tbody>
-                </Table>
-            )}
+          <Text fw={"700"} style={{ marginBottom: 3, marginTop: 28 }}>
+            Your Accounts
+          </Text>
+          <Text fz={"xs"} style={{ marginBottom: 10 }}>
+            Accounts with the current balance
+          </Text>
+          <div>{rows}</div>
         </div>
-    );
-}*/
-
-
-import React, { useState } from 'react';
-import './AccountList.css';
-import AccountForm from './AccountForm';
-
-const AccountList = () => {
-    const [accounts, setAccounts] = useState([
-        { id: 1, bank: 'State Bank of India', deposit: 50788, withdrawal: 48185, balance: 2185 },
-        { id: 2, bank: 'Paytm Payment Bank', deposit: 20788, withdrawal: 2365, balance: 18305 },
-        { id: 3, bank: 'HDFC Bank', deposit: 15788, withdrawal: 14895, balance: 985 },
-    ]);
-
-    const [isFormVisible, setIsFormVisible] = useState(false);
-    const [editingAccount, setEditingAccount] = useState(null);
-
-    const handleAddClick = () => {
-        setEditingAccount(null);
-        setIsFormVisible(true);
-    };
-
-    const handleSaveAccount = (newAccount) => {
-        if (editingAccount) {
-            // Cập nhật tài khoản hiện có
-            setAccounts(accounts.map(account => 
-                account.id === newAccount.id ? newAccount : account
-            ));
-        } else {
-            // Thêm tài khoản mới
-            setAccounts([...accounts, { ...newAccount, id: accounts.length + 1 }]);
-        }
-        setIsFormVisible(false);
-    };
-
-    const handleDeleteAccount = (id) => {
-        setAccounts(accounts.filter(account => account.id !== id));
-    };
-
-    const totalDeposit = accounts.reduce((total, account) => total + account.deposit, 0);
-    const totalWithdrawal = accounts.reduce((total, account) => total + account.withdrawal, 0);
-    const totalBalance = accounts.reduce((total, account) => total + account.balance, 0);
-
-    return (
-        <div className="account-list-container">
-            <div className="header-section">
-                <h2>Accounts</h2>
-                <button className="add-account-btn" onClick={handleAddClick}>Add Account</button>
-            </div>
-
-            <div className="summary-section">
-                <div className="summary-item">
-                    <p>{accounts.length}</p>
-                    <span>Total Accounts</span>
-                </div>
-                <div className="summary-item">
-                    <p>Rs. {totalDeposit.toLocaleString()}</p>
-                    <span>Total Deposit</span>
-                </div>
-                <div className="summary-item">
-                    <p>Rs. {totalWithdrawal.toLocaleString()}</p>
-                    <span>Total Withdrawal</span>
-                </div>
-                <div className="summary-item balance">
-                    <p>Rs. {totalBalance.toLocaleString()}</p>
-                    <span>Total Balance</span>
-                </div>
-            </div>
-
-            <table className="account-table">
-                <thead>
-                    <tr>
-                        <th>Account Details</th>
-                        <th>Total Deposit</th>
-                        <th>Total Withdrawal</th>
-                        <th>Current Balance</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {accounts.map(account => (
-                        <tr key={account.id}>
-                            <td>{account.bank}</td>
-                            <td>Rs. {account.deposit.toLocaleString()}</td>
-                            <td>Rs. {account.withdrawal.toLocaleString()}</td>
-                            <td>Rs. {account.balance.toLocaleString()}</td>
-                            <td>
-                                <button className="edit-btn" onClick={() => { setEditingAccount(account); setIsFormVisible(true); }}>✎</button>
-                                <button className="delete-btn" onClick={() => handleDeleteAccount(account.id)}>🗑️</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-
-            {isFormVisible && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <AccountForm
-                            account={editingAccount}
-                            onClose={() => setIsFormVisible(false)}
-                            onSave={handleSaveAccount}
-                        />
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
-export default AccountList;
+      ) : (
+        <Table verticalSpacing="lg">
+          <thead>
+            <tr>
+              <th>
+                <Text c="dimmed">ACCOUNT DETAILS</Text>
+              </th>
+              <th>
+                <Text c="dimmed">TOTAL INCOME</Text>
+              </th>
+              <th>
+                <Text c="dimmed">TOTAL EXPENSES</Text>
+              </th>
+              <th>
+                <Text c="dimmed">CURRENT BALANCE</Text>
+              </th>
+              <th>
+                <Text c="dimmed">EDIT</Text>
+              </th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </Table>
+      )}
+      {/* Pagination */}
+      <Pagination
+        total={totalPages}
+        value={currentPage}
+        onChange={setCurrentPage}
+        position="center"
+        mt="md"
+      />
+    </div>
+  );
+}

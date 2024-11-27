@@ -1,4 +1,3 @@
-/*
 import {
     Title,
     Modal,
@@ -123,55 +122,3 @@ function BudgetForm(props) {
     )
 }
 export default BudgetForm;
-*/
-
-
-import React, { useEffect, useState } from 'react';
-import './BudgetForm.css'; // Nhập tệp CSS
-
-const BudgetForm = ({ budget, onClose, onSave }) => {
-    const [name, setName] = useState('');
-    const [budgetAmount, setBudgetAmount] = useState('');
-    const [usedAmount, setUsedAmount] = useState('');
-
-    useEffect(() => {
-        if (budget) {
-            setName(budget.name);
-            setBudgetAmount(budget.budget);
-            setUsedAmount(budget.usedAmount);
-        } else {
-            setName('');
-            setBudgetAmount('');
-            setUsedAmount('');
-        }
-    }, [budget]);
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const newBudget = {
-            id: budget ? budget.id : null,
-            name,
-            budget: parseFloat(budgetAmount),
-            usedAmount: parseFloat(usedAmount),
-        };
-        onSave(newBudget);
-        onClose();
-    };
-
-    return (
-        <div className="budget-form">
-            <h3>{budget ? 'Edit Budget' : 'Add Budget'}</h3>
-            <form onSubmit={handleSubmit}>
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Budget Name" required />
-                <input type="number" value={budgetAmount} onChange={(e) => setBudgetAmount(e.target.value)} placeholder="Total Budget" required />
-                <input type="number" value={usedAmount} onChange={(e) => setUsedAmount(e.target.value)} placeholder="Used Amount" required />
-                <button type="submit">Save Budget</button>
-                <button type="button" onClick={onClose}>Cancel</button>
-            </form>
-        </div>
-    );
-};
-
-export default BudgetForm;
-
-

@@ -1,11 +1,12 @@
 import React, { useState, useRef } from "react";
 import {
-    Divider,
-    Text,
-    Space,
-    Button,
-    Modal,
-    Container, Title,
+  Divider,
+  Text,
+  Space,
+  Button,
+  Modal,
+  Container,
+  Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import EditNameForm from "../components/settings/EditNameForm";
@@ -14,9 +15,9 @@ import ChangePasswordForm from "../components/settings/ChangePasswordForm";
 import DeleteAccount from "../components/settings/DeleteAccount";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import {ReactComponent as AvatarIcon} from "../assets/User_duotone.svg";
+import { ReactComponent as AvatarIcon } from "../assets/User_duotone.svg";
 import { editImage, validateToken } from "../features/userSlice";
-import Layout from "../layout/Layout";
+import Layout from "../components/layout/Layout";
 
 export default function ProfileScreen() {
   const [opened, { open, close }] = useDisclosure(false);
@@ -24,11 +25,9 @@ export default function ProfileScreen() {
   const [formName, setFormName] = useState(null);
   const inputRef = useRef(null);
 
-
   //image
   const token = useSelector((state) => state.user.token);
   const dispatch = useDispatch();
-
 
   const handleImageClick = () => {
     inputRef.current.click();
@@ -43,7 +42,9 @@ export default function ProfileScreen() {
   return (
     <>
       <Layout title={""} load={true}>
-          <Title style={{ margin: 5 }} order={2}>Profile</Title>
+        <Title style={{ margin: 5 }} order={2}>
+          Profile
+        </Title>
         <div
           style={{
             marginTop: "10px",
@@ -75,7 +76,17 @@ export default function ProfileScreen() {
               </Text>
 
               <Space h="lg" />
-              <Text fw={500} fz="lg" style={{ display: "inline", maxWidth:"calc(100%-75px)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace:"nowrap" }}>
+              <Text
+                fw={500}
+                fz="lg"
+                style={{
+                  display: "inline",
+                  maxWidth: "calc(100%-75px)",
+                  textOverflow: "ellipsis",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {currentUser.firstName} {currentUser.lastName}
               </Text>
               <Button
@@ -83,7 +94,7 @@ export default function ProfileScreen() {
                 color="dark"
                 radius="md"
                 onClick={() => {
-                    setFormName("Edit Name")
+                  setFormName("Edit Name");
                   setForm(<EditNameForm close={close} />);
                   open();
                 }}
@@ -107,16 +118,25 @@ export default function ProfileScreen() {
                 Email
               </Text>
               <Space h="lg" />
-              <Text fw={500} fz="lg" style={{ display: "inline", maxWidth:"calc(100%-75px)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace:"nowrap" }}>
+              <Text
+                fw={500}
+                fz="lg"
+                style={{
+                  display: "inline",
+                  maxWidth: "calc(100%-75px)",
+                  textOverflow: "ellipsis",
+                  overflow: "hidden",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 {currentUser.email}
               </Text>
               <Button
                 variant="default"
                 color="dark"
                 radius="md"
-                
                 onClick={() => {
-                    setFormName("Edit Email")
+                  setFormName("Edit Email");
                   setForm(<EditEmailForm close={close} />);
                   open();
                 }}
@@ -137,7 +157,7 @@ export default function ProfileScreen() {
               position: "relative",
             }}
           >
-            <Text c={"dimmed"} fw={700} >
+            <Text c={"dimmed"} fw={700}>
               Profile Picture
             </Text>
             <div onClick={handleImageClick}>
@@ -153,15 +173,17 @@ export default function ProfileScreen() {
                   }}
                 />
               ) : (
-                  <AvatarIcon  style={{
-                      width: 150,
-                      height: 150,
-                      objectFit: "contain",
-                      borderStyle:"solid",
-                      borderWidth:1,
-                      borderColor:"rgba(0,0,0,0.2)",
-                      borderRadius: "1000px",
-                  }}/>
+                <AvatarIcon
+                  style={{
+                    width: 150,
+                    height: 150,
+                    objectFit: "contain",
+                    borderStyle: "solid",
+                    borderWidth: 1,
+                    borderColor: "rgba(0,0,0,0.2)",
+                    borderRadius: "1000px",
+                  }}
+                />
                 // <img
                 //   src={logo}
                 //   alt="Default image"
@@ -207,7 +229,7 @@ export default function ProfileScreen() {
             radius="md"
             style={{ width: "200px" }}
             onClick={() => {
-                setFormName("Change Passwod")
+              setFormName("Change Passwod");
               setForm(<ChangePasswordForm close={close} />);
               open();
             }}
@@ -221,7 +243,7 @@ export default function ProfileScreen() {
             radius="md"
             style={{ width: "200px" }}
             onClick={() => {
-                setFormName("Delete Account")
+              setFormName("Delete Account");
               setForm(<DeleteAccount />);
               open();
             }}
@@ -236,19 +258,17 @@ export default function ProfileScreen() {
           size="sm"
           centered
           overlayProps={{
-              color: "white",
-              opacity: 0.55,
-              blur: 3,
+            color: "white",
+            opacity: 0.55,
+            blur: 3,
           }}
-          title={<Title style={{ marginLeft: 10 }} order={3}>
+          title={
+            <Title style={{ marginLeft: 10 }} order={3}>
               {formName}
-          </Title>}
+            </Title>
+          }
         >
-            <Container>
-
-                {form}
-            </Container>
-
+          <Container>{form}</Container>
         </Modal>
       </Layout>
     </>

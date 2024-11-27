@@ -1,31 +1,32 @@
-/* Lớp nền phủ nhẹ xung quanh modal */
 .modalBackground {
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.3); /* Nền bán trong suốt */
+    background-color: rgba(0,0,0,0.2);
     position: fixed;
-    top: 0;
-    left: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Đảm bảo modal nằm trên các nội dung khác */
 }
 
-/* Khung modal nằm ở giữa */
 .modalContainer {
     width: 400px;
+    height: 400px;
     border-radius: 12px;
     background-color: white;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     display: flex;
     flex-direction: column;
     padding: 25px;
-    position: relative;
-    z-index: 1001; /* Đảm bảo modal hiển thị phía trên lớp phủ */
 }
 
-/* Nút đóng modal ở góc trên */
+.modalContainer .title {
+    display: inline-block;
+    text-align: left;
+    margin-top: 5px;
+    margin-left:10px;
+    font-family: 'Verdana', 'sans-serif';
+}
+
 .titleCloseBtn {
     display: flex;
     justify-content: flex-end;
@@ -38,21 +39,24 @@
     cursor: pointer;
 }
 
-.modalContainer .title {
-    text-align: left;
+.modalContainer .body {
+    flex: 30%;
+    justify-content: left;
+    font-size: 1.5rem;
+    margin-left:10px;
     font-family: 'Verdana', 'sans-serif';
-    margin-top: 5px;
-    margin-left: 10px;
 }
 
-.modalContainer .body {
-    text-align: left;
+.modalContainer .body2 {
+    flex: 30%;
+    justify-content: left;
     font-size: 1.5rem;
-    margin: 10px;
+    margin-left:10px;
     font-family: 'Verdana', 'sans-serif';
 }
 
 .modalContainer .footer {
+    flex: 20%;
     display: flex;
     justify-content: center;
     align-items: center;

@@ -1,4 +1,3 @@
-/*
 import { Grid, Title, Button } from '@mantine/core';
 import { showAccountForm} from "../../features/accountSlice";
 import {useDispatch} from "react-redux";
@@ -20,5 +19,3 @@ export default function AccountHeader() {
         </div>
     )
 }
-
-*/
