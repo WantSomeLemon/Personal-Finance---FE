@@ -48,9 +48,9 @@ export const loginAccount = createAsyncThunk(
   }
 );
 
-export const validateToken =
-  createAsyncTh +
-  unk("user/validateToken", async (token) => {
+export const validateToken = createAsyncThunk(
+  "user/validateToken",
+  async (token) => {
     return validateTokenService(token)
       .then((response) => {
         console.log(response);
@@ -60,7 +60,8 @@ export const validateToken =
         console.log(error);
         return error.responce.data;
       });
-  });
+  }
+);
 
 export const sendVerificationCode = createAsyncThunk(
   "user/sendVerificationCode",
