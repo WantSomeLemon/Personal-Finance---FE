@@ -1,5 +1,6 @@
-import { baseUrl } from "./config";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import axios from "axios";
+import { baseUrl } from "./config";
 
 export async function createAccountService(
   firstName,
@@ -23,8 +24,10 @@ export async function loginAccountService(email, password) {
 }
 
 export async function validateTokenService(token) {
+  const localToken = localStorage.getItem('token');
+  console.log(localToken);
   return await axios.get(`${baseUrl}/auth/validateToken`, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: { Authorization: `Bearer ${localToken}` },
   });
 }
 
@@ -54,6 +57,8 @@ export async function verifySecurityCode(email, otp) {
 
 // edit name
 export async function editNameService(token, firstName, lastName) {
+   const localToken = localStorage.getItem('token');
+
   return await axios.post(
     `${baseUrl}/profile/name`,
     {
@@ -61,26 +66,30 @@ export async function editNameService(token, firstName, lastName) {
       lastName: lastName,
     },
     {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${localToken}` },
     }
   );
 }
 
 // edit email
 export async function editEmailService(token, inemail) {
+  const localToken = localStorage.getItem('token');
+
   return await axios.post(
     `${baseUrl}/profile/email`,
     {
       email: inemail,
     },
     {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${localToken}` },
     }
   );
 }
 
 // edit password
 export async function editPasswordService(token, oldPassword, password) {
+  const localToken = localStorage.getItem('token');
+
   return await axios.put(
     `${baseUrl}/profile/password`,
     {
@@ -88,13 +97,15 @@ export async function editPasswordService(token, oldPassword, password) {
       password: password,
     },
     {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${localToken}` },
     }
   );
 }
 
 // edit image
 export async function editImageService(token, image) {
+  const localToken = localStorage.getItem('token');
+
   return await axios.post(
     `${baseUrl}/profile/image`,
     {
@@ -102,9 +113,37 @@ export async function editImageService(token, image) {
     },
     {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${localToken}`,
         "Content-Type": "multipart/form-data",
       },
     }
   );
 }
+
+export const authApi = createApi({
+  reducerPath: "authApi",
+  baseQuery: fetchBaseQuery({
+    baseUrl,
+    prepareHeaders: (headers, { getState }) => {
+      const token =  localStorage.getItem("token");
+      if (token) {
+        headers.set("authorization", `Bearer ${token}`);
+        return headers;
+      }
+    },
+  }),
+  endpoints: (build) => ({
+    getUserDetails: build.query({
+      query: () => ({
+        url: "/profile",
+        headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        method: "GET",
+      }),
+    }),
+  }),
+});
+
+// export react hook
+export const { useGetUserDetailsQuery } = authApi;

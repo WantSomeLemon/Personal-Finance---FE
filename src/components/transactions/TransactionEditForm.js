@@ -123,7 +123,7 @@ export default function TransactionEditForm(props) {
     });
     if (paymentType.length > 0) {
       // eslint-disable-next-line array-callback-return
-      paymentType.map((val) => {
+      paymentType.split(", ").map((val) => {
         data.push({ value: val, label: val });
       });
     }

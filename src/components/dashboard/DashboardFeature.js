@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 export default function DashboardFeture() {
   const accountList = useSelector((state) => state.account.accountList);
   const budgetList = useSelector((state) => state.budget.budgetList);
-  const debtPending = 0;
+  //const debtPending = 0;
   const goalList = useSelector((state) => state.goal.goalList);
   function handleTotalBalanace() {
     return accountList.reduce(
@@ -61,12 +61,7 @@ export default function DashboardFeture() {
               BUDGET USED
             </Text>
           </Grid.Col>
-          <Grid.Col span={6} sm={6} md={3}>
-            <Text size={"xl"} fw={700}>{`${debtPending} `}</Text>
-            <Text size={"sm"} fw={700} c="dimmed">
-              DEBTS PENDING
-            </Text>
-          </Grid.Col>
+          <Grid.Col span={6} sm={6} md={3}></Grid.Col>
           <Grid.Col span={6} sm={6} md={3}>
             <Text size={"xl"} fw={700}>{`${pendingGoals()} / ${
               goalList.length
