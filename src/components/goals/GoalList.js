@@ -45,7 +45,7 @@ export default function GoalList() {
         <Text fw={700}>{handleDate(element.targetDate)}</Text>
       </td>
       <td>
-        <Text fw={700}>{`Rs. ${element.targetAmount}`}</Text>
+        <Text fw={700}>{`${element.targetAmount} .VND`}</Text>
       </td>
       <td>
         <Text fw={700}>{element.status}</Text>

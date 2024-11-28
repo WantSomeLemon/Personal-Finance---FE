@@ -27,13 +27,13 @@ import {
   closeSigninForm,
   closeSignupForm,
   openSigninForm,
-  openSignupForm
+  openSignupForm,
 } from "../../features/userSlice";
 import ForgotPasswordForm from "../auth/ForgotPasswordForm";
 import SigninForm from "../auth/SigninForm";
 import SignupForm from "../auth/SignupForm";
 
-export default function   HeaderBar(props) {
+export default function HeaderBar(props) {
   const displaySigninForm = useSelector(
     (state) => state.user.displaySigninForm
   );
@@ -71,8 +71,7 @@ export default function   HeaderBar(props) {
   function handleSetting() {
     navigate("/profile");
   }
- 
- 
+
   return (
     <Box>
       <Header height={60} px="md">
@@ -84,7 +83,7 @@ export default function   HeaderBar(props) {
                 onClick={() => props.setNavOpened(!props.navOpened)}
               />
             )}
-            <AppLogo />
+            <b>Person-Finance</b>
           </Group>
           {props.isLandingPage ? (
             <Group>
