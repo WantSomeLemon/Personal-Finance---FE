@@ -26,24 +26,25 @@ export default function AccountForm(props) {
     (state) => state.account.addAccountInProcess
   );
   const [showDiscard, setShowDiscard] = useState(false);
+
   const form = useForm({
     initialValues: {
       name: "",
       currentBalance: "",
-      paymentTypes: "",
+      paymentTypes: [],
     },
     validate: {
-      name: (value) => (value !== "" ? null : "Name is required"),
+      name: (value) => (value ? null : "Name is required"),
       currentBalance: (value) =>
-        value !== "" ? null : "Enter currentBalance if your account",
+        value ? null : "Enter the current balance of your account",
       paymentTypes: (value) =>
-        value !== "" ? null : "Select at least one type",
+        value.length > 0 ? null : "Select at least one payment type",
     },
   });
 
   async function handleSubmit() {
-    await dispatch(addAccount({ ...form.values, token: token }));
-    await dispatch(fetchAccount({ token: token }));
+    await dispatch(addAccount({ ...form.values, token }));
+    await dispatch(fetchAccount({ token }));
     form.reset();
   }
 
@@ -69,9 +70,7 @@ export default function AccountForm(props) {
       radius="lg"
       size="sm"
       opened={props.open}
-      onClose={() => {
-        props.close();
-      }}
+      onClose={props.close}
       centered
     >
       <LoadingOverlay visible={addAccountInProcess} overlayBlur={2} />
@@ -79,13 +78,13 @@ export default function AccountForm(props) {
         Add Account
       </Title>
       <Container size="md">
-        <form onSubmit={form.onSubmit((values) => handleSubmit())}>
+        <form onSubmit={form.onSubmit(() => handleSubmit())}>
           <TextInput
             radius="md"
             style={{ marginTop: 16 }}
             withAsterisk
             label="Name"
-            placeholder="Vd :Mbbank,VietCombank "
+            placeholder="E.g., MBBank, Vietcombank"
             type="text"
             {...form.getInputProps("name")}
           />
@@ -94,7 +93,7 @@ export default function AccountForm(props) {
             style={{ marginTop: 16 }}
             withAsterisk
             label="Balance"
-            placeholder="Vd: 500,000"
+            placeholder="E.g., 500,000"
             type="number"
             {...form.getInputProps("currentBalance")}
           />
@@ -105,10 +104,9 @@ export default function AccountForm(props) {
             withAsterisk
           >
             <Group style={{ marginTop: 10 }} mt="xs">
-              <Checkbox value="UPI" label="UPI" />
               <Checkbox value="Debit Card" label="Debit Card" />
               <Checkbox value="Credit Card" label="Credit Card" />
-              <Checkbox value="Net Banking" label="Net Banking" />
+              <Checkbox value="Cash" label="Cash" />
             </Group>
           </Checkbox.Group>
           <Grid
@@ -121,7 +119,7 @@ export default function AccountForm(props) {
             <Grid.Col span={"auto"}>
               <Button
                 radius="md"
-                variant={"default"}
+                variant="default"
                 onClick={() => setShowDiscard(true)}
                 fullWidth
               >
@@ -142,7 +140,7 @@ export default function AccountForm(props) {
           blur: 3,
         }}
         size="auto"
-        withinPortal={true}
+        withinPortal
         closeOnClickOutside={false}
         trapFocus={false}
         withOverlay={false}
@@ -153,8 +151,8 @@ export default function AccountForm(props) {
         withCloseButton={false}
         title="Confirm Discard"
       >
-        <Text size={"sm"} c={"dimmed"} style={{ marginBottom: 10 }}>
-          You will lose all the content you entered
+        <Text size="sm" c="dimmed" style={{ marginBottom: 10 }}>
+          You will lose all the content you entered.
         </Text>
         <Grid>
           <Grid.Col span={"auto"}>
@@ -162,15 +160,15 @@ export default function AccountForm(props) {
               radius="md"
               color="gray"
               fullWidth
-              onClick={() => setShowDiscard(false)}
+              onClick={handleDiscardCancel}
             >
               No
             </Button>
           </Grid.Col>
           <Grid.Col span={"auto"}>
             <Button
-              color={"red"}
-              onClick={() => handleDiscard()}
+              color="red"
+              onClick={handleDiscard}
               radius="md"
               fullWidth
               type="submit"

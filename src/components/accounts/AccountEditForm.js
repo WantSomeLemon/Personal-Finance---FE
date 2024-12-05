@@ -27,31 +27,27 @@ export default function AccountEditForm(props) {
     (state) => state.account.addAccountInProcess
   );
   const [showDiscard, setShowDiscard] = useState(false);
+
   const form = useForm({
     initialValues: {
       name: "",
       currentBalance: "",
-      paymentTypes: "",
+      paymentTypes: [],
     },
     validate: {
-      name: (value) => (value !== "" ? null : "Name is required"),
+      name: (value) => (value ? null : "Name is required"),
       currentBalance: (value) =>
-        value !== "" ? null : "Enter currentBalance if your account",
+        value ? null : "Enter the current balance of your account",
       paymentTypes: (value) =>
-        value !== "" ? null : "Select at least one type",
+        value.length > 0 ? null : "Select at least one payment type",
     },
   });
 
   useEffect(() => {
-    form.setFieldValue("name", props?.element?.name);
-    form.setFieldValue("currentBalance", props?.element?.currentBalance);
-    form.setFieldValue("paymentTypes", props?.element?.paymentTypes);
-  }, [
-    form,
-    props?.element?.currentBalance,
-    props?.element?.name,
-    props?.element?.paymentTypes,
-  ]);
+    form.setFieldValue("name", props?.element?.name || "");
+    form.setFieldValue("currentBalance", props?.element?.currentBalance || "");
+    form.setFieldValue("paymentTypes", props?.element?.paymentTypes || []);
+  }, [form, props?.element]);
 
   async function handleDelete() {
     await dispatch(
@@ -96,14 +92,12 @@ export default function AccountEditForm(props) {
       radius="lg"
       size="sm"
       opened={props.open}
-      onClose={() => {
-        props.close();
-      }}
+      onClose={props.close}
       centered
     >
       <LoadingOverlay visible={addAccountInProcess} overlayBlur={2} />
       <Title style={{ marginLeft: 10 }} order={3}>
-        Add Account
+        Edit Account
       </Title>
       <Container size="md">
         <form onSubmit={form.onSubmit((values) => handleUpdate())}>
@@ -112,7 +106,7 @@ export default function AccountEditForm(props) {
             style={{ marginTop: 16 }}
             withAsterisk
             label="Name"
-            placeholder="Vd: Mb bank,VietCombank"
+            placeholder="E.g., MBBank, Vietcombank"
             type="text"
             {...form.getInputProps("name")}
           />
@@ -121,7 +115,7 @@ export default function AccountEditForm(props) {
             style={{ marginTop: 16 }}
             withAsterisk
             label="Balance"
-            placeholder="Vd: 500,000"
+            placeholder="E.g., 500,000"
             type="number"
             {...form.getInputProps("currentBalance")}
           />
@@ -132,10 +126,9 @@ export default function AccountEditForm(props) {
             withAsterisk
           >
             <Group style={{ marginTop: 10 }} mt="xs">
-              <Checkbox value="Cash" label="UPI" />
+              <Checkbox value="Cash" label="Cash" />
               <Checkbox value="Debit Card" label="Debit Card" />
               <Checkbox value="Credit Card" label="Credit Card" />
-              <Checkbox value="Net Banking" label="Net Banking" />
             </Group>
           </Checkbox.Group>
           <Grid
@@ -158,7 +151,7 @@ export default function AccountEditForm(props) {
             <Grid.Col span={"auto"}>
               <Button
                 radius="md"
-                variant={"default"}
+                variant="default"
                 onClick={() => handleCancel()}
                 fullWidth
               >
@@ -179,7 +172,7 @@ export default function AccountEditForm(props) {
           blur: 3,
         }}
         size="auto"
-        withinPortal={true}
+        withinPortal
         closeOnClickOutside={false}
         trapFocus={false}
         withOverlay={false}
@@ -190,7 +183,7 @@ export default function AccountEditForm(props) {
         withCloseButton={false}
         title="Confirm Delete"
       >
-        <Text size={"sm"} c={"dimmed"} style={{ marginBottom: 10 }}>
+        <Text size="sm" c="dimmed" style={{ marginBottom: 10 }}>
           This will delete this account.
         </Text>
         <Grid>
@@ -206,7 +199,7 @@ export default function AccountEditForm(props) {
           </Grid.Col>
           <Grid.Col span={"auto"}>
             <Button
-              color={"red"}
+              color="red"
               onClick={() => handleDelete()}
               radius="md"
               fullWidth
