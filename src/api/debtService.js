@@ -8,7 +8,7 @@ export async function createDebt(data) {
   });
 }
 
-export async function updateDebt(  data) {
+export async function updateDebt(data) {
   const localToken = localStorage.getItem("token");
   return await axios.put(`${baseUrl}/debts`, data, {
     headers: { Authorization: `Bearer ${localToken}` },
@@ -23,9 +23,11 @@ export async function deleteDebt(id) {
   });
 }
 
-export async function getDebt(token) {
+export async function getDebt(token, user_id) {
   const localToken = localStorage.getItem("token");
-  return await axios.get(`${baseUrl}/debts`, {
+  return await axios.get(`${baseUrl}/debts/user`, {
+    // return await axios.get(`${baseUrl}/debts/user?value=${user_id}`, {
+
     headers: { Authorization: `Bearer ${localToken}` },
   });
 }

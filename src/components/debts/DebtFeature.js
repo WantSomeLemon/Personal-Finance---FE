@@ -14,14 +14,18 @@ export default function DebtFeature() {
 
   function handleTotalPaid() {
     return debtList.reduce(
-      (accumulator, currentValue) => accumulator + (currentValue.status === "Paid" ? currentValue.amount : 0),
+      (accumulator, currentValue) =>
+        accumulator +
+        (currentValue.status === "Paid" ? currentValue.amount : 0),
       0
     );
   }
 
   function handleTotalUnpaid() {
     return debtList.reduce(
-      (accumulator, currentValue) => accumulator + (currentValue.status === "Unpaid" ? currentValue.amount : 0),
+      (accumulator, currentValue) =>
+        accumulator +
+        (currentValue.status === "Unpaid" ? currentValue.amount : 0),
       0
     );
   }

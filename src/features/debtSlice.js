@@ -20,7 +20,7 @@ export const addDebt = createAsyncThunk("debt/addDebt", async (body) => {
 });
 
 export const editDebt = createAsyncThunk("debt/editDebt", async (body) => {
-  console.log("body",body)
+  console.log("body", body);
   return updateDebt(body)
     .then((res) => {
       return res.data;
@@ -40,16 +40,21 @@ export const removeDebt = createAsyncThunk("debt/removeDebt", async (body) => {
     });
 });
 
-export const fetchDebt = createAsyncThunk("debt/fetchDebt", async (body) => {
-  return getDebt(body.token)
-    .then((res) => {
-      console.log(res.data);
-      return res.data;
-    })
-    .catch((err) => {
-      return err.response.data;
-    });
-});
+export const fetchDebt = createAsyncThunk(
+  "debt/fetchDebt",
+  async (value, { getState, rejectWithValue }) => {
+    try {
+      const state = getState();
+      const token = state.user.token;
+      const response = await getDebt(token, value);
+      // Return data received from API
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch debts:", error);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 
 const debtSlice = createSlice({
   name: "debt",
@@ -186,14 +191,17 @@ const debtSlice = createSlice({
       console.log("Debt fetch pending");
     },
     [fetchDebt.fulfilled]: (state, action) => {
-      state.debtList = action.payload.map((debt) => ({
-        debtId: debt.debtId,
-        amount: debt.amount,
-        dueDate: debt.dueDate,
-        moneyFrom: debt.moneyFrom,
-        status: debt.status,
-        user: debt.user,
-      }));
+      // state.debtList = action.payload.map((debt) => ({
+      //   debtId: debt.debtId,
+      //   amount: debt.amount,
+      //   dueDate: debt.dueDate,
+      //   moneyFrom: debt.moneyFrom,
+      //   status: debt.status,
+      //   user: debt.user,
+      // }));
+
+      state.debtList = action.payload;
+
       console.log("Debt fetched");
       console.log(state.debtList);
     },
