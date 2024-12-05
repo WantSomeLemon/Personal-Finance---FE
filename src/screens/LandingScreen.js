@@ -34,8 +34,8 @@ export default function LandingScreen() {
                 Empower your finances, simplify your life.
               </Title>
               <Text c="dimmed" style={{ marginTop: 10, textAlign: "left" }}>
-                PayMint: Simplify payments, track expenses, achieve financial
-                goals
+                Person-Finance: Simplify payments, track expenses, achieve
+                financial goals
               </Text>
               <Button
                 onClick={() => dispatch(openSignupForm())}
@@ -191,7 +191,6 @@ export default function LandingScreen() {
         <Container size={"lg"}>
           <Grid style={{ marginTop: 50 }}>
             <Grid.Col span={4}>
-              <AppLogo style={{ width: 200 }}></AppLogo>
               <Text color={"gray"} style={{ marginLeft: 10 }}>
                 Simplify payments, track expenses, achieve financial goals
               </Text>
