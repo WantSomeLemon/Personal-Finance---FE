@@ -48,6 +48,7 @@ export default function TransactionHeader() {
               </Grid.Col>
             </Grid>
           </Grid.Col>
+
           <Grid.Col span={12} md={6}>
             <TextInput
               style={{ margin: 8 }}
