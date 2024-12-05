@@ -7,6 +7,7 @@ import {
   Grid,
   Text,
   LoadingOverlay,
+  Select, // Import Select from Mantine
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { addGoal, closeGoalForm, fetchGoal } from "../../features/goalSlice";
@@ -24,7 +25,7 @@ export default function GoalForm(props) {
       name: "",
       description: "",
       targetAmount: "",
-      status: "Pending",
+      status: "Pending", // Default to "Pending"
       targetDate: new Date(),
     },
     validate: {
@@ -55,6 +56,7 @@ export default function GoalForm(props) {
   function handleDiscardCancel() {
     setShowDiscard(false);
   }
+
   return (
     <Modal
       overlayProps={{
@@ -108,6 +110,17 @@ export default function GoalForm(props) {
             label="Target Date"
             {...form.getInputProps("targetDate")}
           />
+          <Select
+            radius="md"
+            style={{ marginTop: 16 }}
+            label="Status"
+            placeholder="Select Status"
+            data={[
+              { value: "Pending", label: "Pending" },
+              { value: "Completed", label: "Completed" },
+            ]}
+            {...form.getInputProps("status")}
+          />
           <Grid
             style={{ marginTop: 16, marginBottom: 8 }}
             gutter={5}
@@ -122,7 +135,7 @@ export default function GoalForm(props) {
                 fullWidth
                 onClick={() => setShowDiscard(true)}
               >
-                Cancel
+                Discard
               </Button>
             </Grid.Col>
             <Grid.Col span={"auto"}>
