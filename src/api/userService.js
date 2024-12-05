@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import axios from "axios";
 import { baseUrl } from "./config";
 
+// Create Account Service - chuyển đổi các giá trị sang lowercase trước khi gửi
 export async function createAccountService(
   firstName,
   lastName,
@@ -9,61 +10,66 @@ export async function createAccountService(
   password
 ) {
   return await axios.post(`${baseUrl}/auth/register`, {
-    firstName: firstName,
-    lastName: lastName,
-    email: email,
-    password: password,
+    first_name: firstName.toLowerCase(),
+    last_name: lastName.toLowerCase(),
+    email: email.toLowerCase(),
+    password,
   });
 }
 
+// Login Account Service - chuyển đổi email sang lowercase
 export async function loginAccountService(email, password) {
   return await axios.post(`${baseUrl}/auth/login`, {
-    email: email,
-    password: password,
+    email: email.toLowerCase(),
+    password,
   });
 }
 
-export async function validateTokenService(token) {
+// Validate Token Service
+export async function validateTokenService() {
   const localToken = localStorage.getItem("token");
-  console.log(localToken);
   return await axios.get(`${baseUrl}/auth/validateToken`, {
     headers: { Authorization: `Bearer ${localToken}` },
   });
 }
 
+// Send Verification Security Code (Email) - chuyển đổi email sang lowercase
 export async function sendVerificationSecurityCode(email) {
   return await axios.post(
-    `${baseUrl}/auth/send-verification-email?email=${email}`
+    `${baseUrl}/auth/send-verification-email?email=${email.toLowerCase()}`
   );
 }
 
+// Send Verification Security Code for Forgot Password (Email) - chuyển đổi email sang lowercase
 export async function sendVerificationSecurityCodeForFP(email) {
   return await axios.post(
-    `${baseUrl}/auth/forgot-password/send-verification-email?email=${email}`
+    `${baseUrl}/auth/forgot-password/send-verification-email?email=${email.toLowerCase()}`
   );
 }
 
+// Reset Password - chuyển đổi email sang lowercase
 export async function resetPassword(email, password) {
   return await axios.put(
-    `${baseUrl}/auth/new-password?email=${email}&password=${password}`
+    `${baseUrl}/auth/new-password?email=${email.toLowerCase()}&password=${password}`
   );
 }
 
+// Verify Security Code (Email) - chuyển đổi email sang lowercase
 export async function verifySecurityCode(email, otp) {
   return await axios.post(
-    `${baseUrl}/auth/verify-security-code?email=${email}&otp=${otp}`
+    `${baseUrl}/auth/verify-security-code?email=${email.toLowerCase()}&otp=${otp}`
   );
 }
 
-// edit name
-export async function editNameService(token, firstName, lastName) {
+// Edit Name - chuyển đổi tên và họ sang lowercase trước khi gửi
+export async function editNameService(firstName, lastName) {
   const localToken = localStorage.getItem("token");
 
   return await axios.post(
     `${baseUrl}/profile/name`,
     {
-      firstName: firstName,
-      lastName: lastName,
+      first_name: firstName.toLowerCase(),
+      last_name: lastName.toLowerCase(),
     },
     {
       headers: { Authorization: `Bearer ${localToken}` },
@@ -71,14 +77,14 @@ export async function editNameService(token, firstName, lastName) {
   );
 }
 
-// edit email
-export async function editEmailService(token, inemail) {
+// Edit Email - chuyển đổi email sang lowercase
+export async function editEmailService(inemail) {
   const localToken = localStorage.getItem("token");
 
   return await axios.post(
     `${baseUrl}/profile/email`,
     {
-      email: inemail,
+      email: inemail.toLowerCase(),
     },
     {
       headers: { Authorization: `Bearer ${localToken}` },
@@ -86,15 +92,15 @@ export async function editEmailService(token, inemail) {
   );
 }
 
-// edit password
-export async function editPasswordService(token, oldPassword, password) {
+// Edit Password
+export async function editPasswordService(oldPassword, password) {
   const localToken = localStorage.getItem("token");
 
   return await axios.put(
     `${baseUrl}/profile/password`,
     {
-      oldPassword: oldPassword,
-      password: password,
+      oldPassword,
+      password,
     },
     {
       headers: { Authorization: `Bearer ${localToken}` },
@@ -102,14 +108,14 @@ export async function editPasswordService(token, oldPassword, password) {
   );
 }
 
-// edit image
-export async function editImageService(token, image) {
+// Edit Image
+export async function editImageService(image) {
   const localToken = localStorage.getItem("token");
 
   return await axios.post(
     `${baseUrl}/profile/image`,
     {
-      image: image,
+      image,
     },
     {
       headers: {
@@ -120,6 +126,7 @@ export async function editImageService(token, image) {
   );
 }
 
+// Redux API for getting user details
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
@@ -128,22 +135,28 @@ export const authApi = createApi({
       const token = localStorage.getItem("token");
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
-        return headers;
       }
+      return headers;
     },
   }),
   endpoints: (build) => ({
+    // Query to get user details
     getUserDetails: build.query({
       query: () => ({
         url: "/profile",
-        headers: {
-          authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
         method: "GET",
       }),
+      transformResponse: (response) => {
+        // Chuyển tất cả các trường trong response thành lowercase
+        const normalizedResponse = {};
+        Object.keys(response).forEach((key) => {
+          normalizedResponse[key.toLowerCase()] = response[key];
+        });
+        return normalizedResponse;
+      },
     }),
   }),
 });
 
-// export react hook
+// Export React hook to use the `getUserDetails` endpoint
 export const { useGetUserDetailsQuery } = authApi;
