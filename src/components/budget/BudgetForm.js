@@ -3,19 +3,24 @@ import {
     Modal,
     Button,
     Container,
-    Grid, LoadingOverlay, Select, NumberInput, Text
+    Grid,
+    LoadingOverlay,
+    Select,
+    NumberInput,
+    Text
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import {useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {addBudget, closeBudgetForm, fetchBudget} from "../../features/budgetSlice";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addBudget, closeBudgetForm, fetchBudget } from "../../features/budgetSlice";
 
 function BudgetForm(props) {
-    const dispatch = useDispatch()
-    const token = useSelector(state => state.user.token)
-    const addBudgetInProcess = useSelector(state => state.budget.addBudgetInProcess)
-    const [ showCancel,setShowCancel] = useState(false);
-    const categoryList = useSelector(state => state.category.categoryList)
+    const dispatch = useDispatch();
+    const token = useSelector(state => state.user.token);
+    const addBudgetInProcess = useSelector(state => state.budget.addBudgetInProcess);
+    const [showCancel, setShowCancel] = useState(false);
+    const categoryList = useSelector(state => state.category.categoryList);
+    
     const form = useForm({
         initialValues: {
             categoryId: '',
@@ -31,41 +36,63 @@ function BudgetForm(props) {
         }
     });
 
+    // Hàm xử lý gửi dữ liệu, thêm ngân sách mới
     async function handleSubmit() {
-        console.log(form.values)
-        await dispatch(addBudget({...form.values, token: token}))
-        await dispatch(fetchBudget({token:token}))
-        form.reset()
+        try {
+            console.log(form.values);
+            // Gửi dữ liệu ngân sách mới
+            await dispatch(addBudget({ ...form.values, token: token }));
+            // Lấy lại danh sách ngân sách
+            await dispatch(fetchBudget({ token: token }));
+            // Reset lại form
+            form.reset();
+        } catch (error) {
+            // Log lỗi nếu có sự cố trong quá trình gửi dữ liệu
+            console.error("Lỗi khi thêm ngân sách:", error);
+        }
     }
 
+    // Hàm xử lý hủy bỏ việc nhập ngân sách
     function handleCancel() {
-        form.reset()
-        setShowCancel(false)
-        dispatch(closeBudgetForm())
+        form.reset();
+        setShowCancel(false);
+        dispatch(closeBudgetForm());
     }
-    function handleCancelConfirm(){
-        setShowCancel(false)
+
+    // Xác nhận hủy bỏ mà không thay đổi gì
+    function handleCancelConfirm() {
+        setShowCancel(false);
     }
-    function categoryData(){
-        const data =[]
+
+    // Dữ liệu để hiển thị trong Select (danh sách các danh mục)
+    function categoryData() {
+        const data = [];
         // eslint-disable-next-line array-callback-return
         categoryList.map(val => {
-            data.push({value:val.categoryId,label:val.name})
-        })
-        return data
+            data.push({ value: val.categoryId, label: val.name });
+        });
+        return data;
     }
 
     return (
-        <Modal overlayProps={{
-            color: "white",
-            opacity: 0.55,
-            blur: 3,
-        }} withCloseButton={false} closeOnClickOutside={true} radius="lg" size="sm" opened={props.open}
-               onClose={() => {
-                   props.close()
-               }} centered>
+        <Modal 
+            overlayProps={{
+                color: "white",
+                opacity: 0.55,
+                blur: 3,
+            }} 
+            withCloseButton={false} 
+            closeOnClickOutside={true} 
+            radius="lg" 
+            size="sm" 
+            opened={props.open}
+            onClose={() => {
+                props.close();
+            }} 
+            centered
+        >
             <LoadingOverlay visible={addBudgetInProcess} overlayBlur={2}/>
-            <Title style={{marginLeft: 10,marginBottom:20}} order={3}>Add Budget</Title>
+            <Title style={{ marginLeft: 10, marginBottom: 20 }} order={3}>Add Budget</Title>
             <Container size="md">
                 <form onSubmit={form.onSubmit((values) => handleSubmit())}>
                     <Select
@@ -76,17 +103,16 @@ function BudgetForm(props) {
                         data={categoryData()}
                         maxDropdownHeight={150}
                         {...form.getInputProps("categoryId")}
-                        style={{marginBottom:20}}
+                        style={{ marginBottom: 20 }}
                     />
                     <NumberInput
                         label="Budget"
                         placeholder="Enter Budget"
                         hideControls
                         {...form.getInputProps("amount")}
-                        style={{marginBottom:20}}
-
+                        style={{ marginBottom: 20 }}
                     />
-                    <Grid style={{marginTop: 16, marginBottom: 10}} gutter={5} gutterXs="md" gutterMd="xl" gutterXl={50}>
+                    <Grid style={{ marginTop: 16, marginBottom: 10 }} gutter={5} gutterXs="md" gutterMd="xl" gutterXl={50}>
                         <Grid.Col span={"auto"}>
                             <Button radius="md" variant={"default"}
                                     fullWidth onClick={handleCancel}>Cancel</Button>
@@ -97,28 +123,41 @@ function BudgetForm(props) {
                     </Grid>
                 </form>
             </Container>
+
+            {/* Modal xác nhận hủy bỏ */}
             <Modal
                 overlayProps={{
                     color: "red",
                     blur: 3,
                 }}
-                size="auto" withinPortal={true} closeOnClickOutside={false} trapFocus={false} withOverlay={false} opened={showCancel} onClose={handleCancelConfirm} radius="lg" centered  withCloseButton={false} title="Confirm">
-                <Text size={"sm"} c={"dimmed"} style={{marginBottom:10}}>You will lose all entered data</Text>
-                <Grid
-                >
+                size="auto" 
+                withinPortal={true} 
+                closeOnClickOutside={false} 
+                trapFocus={false} 
+                withOverlay={false} 
+                opened={showCancel} 
+                onClose={handleCancelConfirm} 
+                radius="lg" 
+                centered  
+                withCloseButton={false} 
+                title="Confirm"
+            >
+                <Text size={"sm"} c={"dimmed"} style={{ marginBottom: 10 }}>You will lose all entered data</Text>
+                <Grid>
                     <Grid.Col span={"auto"}>
-                        <Button radius="md" variant={"default"} fullWidth  onClick={() => setShowCancel(false)}>
+                        <Button radius="md" variant={"default"} fullWidth onClick={() => setShowCancel(false)}>
                             No
                         </Button>
                     </Grid.Col>
                     <Grid.Col span={"auto"}>
-                        <Button color={"red"} onClick={()=> handleCancel()} radius="md" fullWidth>
+                        <Button color={"red"} onClick={() => handleCancel()} radius="md" fullWidth>
                             Yes
                         </Button>
                     </Grid.Col>
                 </Grid>
             </Modal>
         </Modal>
-    )
+    );
 }
+
 export default BudgetForm;

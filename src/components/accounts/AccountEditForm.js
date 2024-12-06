@@ -20,13 +20,13 @@ import {
 } from "../../features/accountSlice";
 
 export default function AccountEditForm(props) {
-  console.log(props.element);
+  console.log(props.element); // In thông tin tài khoản cần sửa
   const dispatch = useDispatch();
   const token = useSelector((state) => state.user.token);
   const addAccountInProcess = useSelector(
     (state) => state.account.addAccountInProcess
   );
-  const [showDiscard, setShowDiscard] = useState(false);
+  const [showDiscard, setShowDiscard] = useState(false); // Trạng thái để hiển thị modal xác nhận xóa
 
   const form = useForm({
     initialValues: {
@@ -35,6 +35,7 @@ export default function AccountEditForm(props) {
       paymentTypes: [],
     },
     validate: {
+      // Kiểm tra hợp lệ khi người dùng nhập thông tin
       name: (value) => (value ? null : "Name is required"),
       currentBalance: (value) =>
         value ? null : "Enter the current balance of your account",
@@ -43,41 +44,56 @@ export default function AccountEditForm(props) {
     },
   });
 
+  // Khi component được mount, thiết lập giá trị ban đầu cho form
   useEffect(() => {
     form.setFieldValue("name", props?.element?.name || "");
     form.setFieldValue("currentBalance", props?.element?.currentBalance || "");
     form.setFieldValue("paymentTypes", props?.element?.paymentTypes || []);
   }, [form, props?.element]);
 
+  // Hàm xử lý xóa tài khoản
   async function handleDelete() {
-    await dispatch(
-      removeAccount({ token: token, accountId: props.element.accountId })
-    );
-    await dispatch(fetchAccount({ token: token }));
-    form.reset();
-    props.close();
+    try {
+      // Thực hiện xóa tài khoản và cập nhật danh sách tài khoản
+      await dispatch(
+        removeAccount({ token: token, accountId: props.element.accountId })
+      );
+      await dispatch(fetchAccount({ token: token }));
+      form.reset(); // Đặt lại form sau khi xóa
+      props.close(); // Đóng modal sau khi xóa
+    } catch (error) {
+      console.error("Error deleting account:", error); // Xử lý lỗi nếu có
+    }
   }
 
+  // Hàm đóng modal xác nhận xóa
   function handleDiscardCancel() {
     setShowDiscard(false);
   }
 
+  // Hàm hủy bỏ việc chỉnh sửa và đóng modal
   function handleCancel() {
-    form.reset();
-    props.close();
+    form.reset(); // Đặt lại form
+    props.close(); // Đóng modal
   }
 
+  // Hàm cập nhật tài khoản
   async function handleUpdate() {
-    await dispatch(
-      changeAccount({
-        ...form.values,
-        token: token,
-        accountId: props.element.accountId,
-      })
-    );
-    await dispatch(fetchAccount({ token: token }));
-    form.reset();
-    props.close();
+    try {
+      // Thực hiện cập nhật tài khoản và cập nhật danh sách tài khoản
+      await dispatch(
+        changeAccount({
+          ...form.values,
+          token: token,
+          accountId: props.element.accountId,
+        })
+      );
+      await dispatch(fetchAccount({ token: token }));
+      form.reset(); // Đặt lại form sau khi cập nhật
+      props.close(); // Đóng modal sau khi cập nhật
+    } catch (error) {
+      console.error("Error updating account:", error); // Xử lý lỗi nếu có
+    }
   }
 
   return (
@@ -143,7 +159,7 @@ export default function AccountEditForm(props) {
                 radius="md"
                 color="red"
                 fullWidth
-                onClick={() => setShowDiscard(true)}
+                onClick={() => setShowDiscard(true)} // Hiển thị modal xác nhận xóa
               >
                 Delete
               </Button>
@@ -152,7 +168,7 @@ export default function AccountEditForm(props) {
               <Button
                 radius="md"
                 variant="default"
-                onClick={() => handleCancel()}
+                onClick={() => handleCancel()} // Hủy và đóng modal
                 fullWidth
               >
                 Cancel
@@ -166,6 +182,8 @@ export default function AccountEditForm(props) {
           </Grid>
         </form>
       </Container>
+
+      {/* Modal xác nhận xóa tài khoản */}
       <Modal
         overlayProps={{
           color: "red",
@@ -192,7 +210,7 @@ export default function AccountEditForm(props) {
               radius="md"
               color="gray"
               fullWidth
-              onClick={() => setShowDiscard(false)}
+              onClick={() => setShowDiscard(false)} // Hủy bỏ việc xóa
             >
               No, Cancel
             </Button>
@@ -200,7 +218,7 @@ export default function AccountEditForm(props) {
           <Grid.Col span={"auto"}>
             <Button
               color="red"
-              onClick={() => handleDelete()}
+              onClick={() => handleDelete()} // Xác nhận xóa tài khoản
               radius="md"
               fullWidth
               type="submit"

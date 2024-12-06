@@ -16,20 +16,29 @@ export default function DebtList() {
   const itemsPerPage = 6;
   const debtList = useSelector((state) => state.debt.debtList);
   const totalPages = Math.ceil(debtList.length / itemsPerPage);
-  console.log("123", debtList);
-  useEffect(() => {
-    dispatch(fetchDebt(123));
-  }, [dispatch]);
+  console.log("Debt List:", debtList);
 
+  // Lấy thông tin nợ khi component được render lần đầu tiên
+  useEffect(() => {
+    try {
+      dispatch(fetchDebt(token)); // Gửi action để lấy dữ liệu nợ từ API
+    } catch (error) {
+      console.error("Error fetching debt data:", error); // Xử lý lỗi nếu có sự cố khi lấy dữ liệu
+    }
+  }, [dispatch, token]);
+
+  // Đóng form chỉnh sửa khi nhấn hủy
   function handleDebtEditFormClose() {
     setDisplayDebtEditForm(false);
   }
 
+  // Mở form chỉnh sửa khi nhấn vào nút chỉnh sửa
   function handleDebtEditFormOpen(element) {
     setSelectedEditElement(element);
     setDisplayDebtEditForm(true);
   }
 
+  // Phân trang dữ liệu nợ
   const currentData = debtList.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -46,20 +55,10 @@ export default function DebtList() {
             </Avatar>
           </Grid.Col>
           <Grid.Col span={10}>
-            <Text
-              fw={"600"}
-              style={{ marginBottom: 8 }}
-              fz={"sm"}
-            >{`${element.moneyFrom} (${element.status})`}</Text>
-            <Text
-              style={{ marginTop: 8, fontSize: 10 }}
-            >{`Due Date: ${formattedDueDate}`}</Text>
-            <Text
-              style={{ marginTop: 8, fontSize: 10 }}
-            >{`Amount: ${element.amount}`}</Text>
-            <Text
-              style={{ marginTop: 8, fontSize: 10 }}
-            >{`User: ${element.user.firstName} ${element.user.lastName}`}</Text>
+            <Text fw={"600"} style={{ marginBottom: 8 }} fz={"sm"}>{`${element.moneyFrom} (${element.status})`}</Text>
+            <Text style={{ marginTop: 8, fontSize: 10 }}>{`Due Date: ${formattedDueDate}`}</Text>
+            <Text style={{ marginTop: 8, fontSize: 10 }}>{`Amount: ${element.amount}`}</Text>
+            <Text style={{ marginTop: 8, fontSize: 10 }}>{`User: ${element.user.firstName} ${element.user.lastName}`}</Text>
           </Grid.Col>
         </Grid>
       </div>
@@ -99,11 +98,10 @@ export default function DebtList() {
           </Text>
         </td>
         <td>
-          <Text
-            fw={700}
-          >{`${element.user.firstName} ${element.user.lastName}`}</Text>
+          <Text fw={700}>{`${element.user.firstName} ${element.user.lastName}`}</Text>
         </td>
         <td>
+          {/* Mở form chỉnh sửa khi nhấn vào biểu tượng chỉnh sửa */}
           <EditSVG onClick={() => handleDebtEditFormOpen(element)} />
         </td>
       </tr>
@@ -112,6 +110,7 @@ export default function DebtList() {
 
   return (
     <div>
+      {/* Hiển thị form chỉnh sửa khi cần thiết */}
       {displayDebtEditForm && (
         <DebtEditForm
           element={selectedEditElement}
@@ -119,6 +118,7 @@ export default function DebtList() {
           close={handleDebtEditFormClose}
         />
       )}
+      
       {isMobile ? (
         <div>
           <Text fw={"700"} style={{ marginBottom: 3, marginTop: 28 }}>
@@ -156,6 +156,8 @@ export default function DebtList() {
           <tbody>{rows}</tbody>
         </Table>
       )}
+
+      {/* Pagination */}
       <Pagination
         total={totalPages}
         value={currentPage}

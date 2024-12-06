@@ -23,6 +23,7 @@ function DebtEditForm(props) {
   );
   const [showDelete, setShowDelete] = useState(false);
 
+  // Thiết lập xác thực cho form
   const form = useForm({
     initialValues: {
       moneyFrom: "",
@@ -31,43 +32,58 @@ function DebtEditForm(props) {
       status: "",
     },
     validate: {
-      moneyFrom: (value) => (value !== "" ? null : "Money From is required"),
-      amount: (value) => (value !== "" ? null : "Enter Amount"),
-      dueDate: (value) => (value !== "" ? null : "Enter Due Date"),
-      status: (value) => (value !== "" ? null : "Enter Status"),
+      moneyFrom: (value) => (value !== "" ? null : "Money From là bắt buộc"),
+      amount: (value) => (value !== "" ? null : "Nhập số tiền"),
+      dueDate: (value) => (value !== "" ? null : "Nhập ngày đến hạn"),
+      status: (value) => (value !== "" ? null : "Nhập trạng thái"),
     },
   });
 
+  // Tải dữ liệu ban đầu khi thay đổi prop element
   useEffect(() => {
     if (props?.element) {
       form.setFieldValue("amount", props.element.amount);
       form.setFieldValue("moneyFrom", props.element.moneyFrom);
       form.setFieldValue("dueDate", props.element.dueDate.split("T")[0]);
-      form.setFieldValue("status", props.element.status || ""); // Ensure we set the status value correctly
+      form.setFieldValue("status", props.element.status || ""); // Đảm bảo trạng thái được đặt chính xác
     }
-  }, [props?.element]); // React to changes in the element data from parent
+  }, [props?.element]); // Phản hồi với sự thay đổi trong dữ liệu element từ parent
 
+  // Xử lý khi gửi (chỉnh sửa nợ)
   async function handleSubmit() {
-    await dispatch(editDebt({ ...form.values, debtId: props.element.debtId }));
-    await dispatch(fetchDebt({ token: token }));
-    form.reset();
-    props.close();
+    try {
+      await dispatch(editDebt({ ...form.values, debtId: props.element.debtId }));
+      await dispatch(fetchDebt({ token: token }));
+      form.reset(); // Reset form sau khi gửi thành công
+      props.close(); // Đóng modal
+    } catch (error) {
+      console.error("Lỗi khi chỉnh sửa nợ:", error);
+      // Tùy chọn, bạn có thể hiển thị thông báo lỗi hoặc cảnh báo cho người dùng
+    }
   }
 
+  // Xử lý khi xóa nợ
   async function handleDelete() {
-    console.log("debtId", props.element.debtId);
-    await dispatch(removeDebt(props.element.debtId));
-    await dispatch(fetchDebt({ token: token }));
-    form.reset();
-    props.close();
+    try {
+      console.log("debtId", props.element.debtId);
+      await dispatch(removeDebt(props.element.debtId));
+      await dispatch(fetchDebt({ token: token }));
+      form.reset();
+      props.close(); // Đóng modal sau khi xóa thành công
+    } catch (error) {
+      console.error("Lỗi khi xóa nợ:", error);
+      // Tùy chọn, hiển thị thông báo lỗi hoặc cảnh báo cho người dùng
+    }
   }
 
+  // Hủy bỏ hành động chỉnh sửa
   function handleCancel() {
-    form.reset();
-    setShowDelete(false);
-    props.close();
+    form.reset(); // Reset các giá trị trong form
+    setShowDelete(false); // Ẩn modal xác nhận xóa
+    props.close(); // Đóng modal
   }
 
+  // Hủy bỏ xác nhận xóa
   function handleDeleteCancel() {
     setShowDelete(false);
   }
@@ -85,43 +101,43 @@ function DebtEditForm(props) {
       size="sm"
       opened={props.open}
       onClose={() => {
-        props.close();
+        props.close(); // Đóng modal khi nhấn nút đóng
       }}
       centered
     >
       <LoadingOverlay visible={addDebtEditInProcess} overlayBlur={2} />
       <Title style={{ marginLeft: 10, marginBottom: 20 }} order={3}>
-        Edit Debt
+        Chỉnh sửa nợ
       </Title>
       <Container size="md">
         <form onSubmit={form.onSubmit((values) => handleSubmit())}>
           <TextInput
-            label="Money From"
-            placeholder="Enter Money From"
+            label="Nguồn tiền"
+            placeholder="Nhập nguồn tiền"
             {...form.getInputProps("moneyFrom")}
             style={{ marginBottom: 20 }}
           />
           <NumberInput
-            label="Amount"
-            placeholder="Enter Amount"
+            label="Số tiền"
+            placeholder="Nhập số tiền"
             hideControls
             {...form.getInputProps("amount")}
             style={{ marginBottom: 20 }}
           />
           <TextInput
-            label="Due Date"
-            placeholder="Select Due Date"
+            label="Ngày đến hạn"
+            placeholder="Chọn ngày đến hạn"
             type="date"
             {...form.getInputProps("dueDate")}
             style={{ marginBottom: 20 }}
           />
           <Select
-            label="Status"
-            placeholder="Select Status"
+            label="Trạng thái"
+            placeholder="Chọn trạng thái"
             data={[
-              { value: "pending", label: "Pending" },
-              { value: "paid", label: "Paid" },
-              { value: "overdue", label: "Overdue" },
+              { value: "pending", label: "Đang chờ" },
+              { value: "paid", label: "Đã thanh toán" },
+              { value: "overdue", label: "Quá hạn" },
             ]}
             {...form.getInputProps("status")}
             style={{ marginBottom: 20 }}
@@ -138,9 +154,9 @@ function DebtEditForm(props) {
                 radius="md"
                 color="red"
                 fullWidth
-                onClick={() => setShowDelete(true)}
+                onClick={() => setShowDelete(true)} // Hiển thị modal xác nhận xóa
               >
-                Delete
+                Xóa
               </Button>
             </Grid.Col>
             <Grid.Col span={"auto"}>
@@ -148,19 +164,20 @@ function DebtEditForm(props) {
                 radius="md"
                 variant={"default"}
                 fullWidth
-                onClick={handleCancel}
+                onClick={handleCancel} // Hủy bỏ hành động chỉnh sửa
               >
-                Cancel
+                Hủy
               </Button>
             </Grid.Col>
             <Grid.Col span={"auto"}>
               <Button radius="md" fullWidth type="submit">
-                Save
+                Lưu
               </Button>
             </Grid.Col>
           </Grid>
         </form>
       </Container>
+      {/* Modal xác nhận xóa */}
       <Modal
         overlayProps={{
           color: "red",
@@ -176,10 +193,10 @@ function DebtEditForm(props) {
         radius="lg"
         centered
         withCloseButton={false}
-        title="Confirm Delete"
+        title="Xác nhận xóa"
       >
         <Text size={"sm"} c={"dimmed"} style={{ marginBottom: 10 }}>
-          This will delete this debt
+          Hành động này sẽ xóa nợ này
         </Text>
         <Grid>
           <Grid.Col span={"auto"}>
@@ -187,19 +204,19 @@ function DebtEditForm(props) {
               radius="md"
               color="gray"
               fullWidth
-              onClick={() => setShowDelete(false)}
+              onClick={() => setShowDelete(false)} // Hủy bỏ hành động xóa
             >
-              No, Cancel
+              Không, hủy bỏ
             </Button>
           </Grid.Col>
           <Grid.Col span={"auto"}>
             <Button
               color={"red"}
-              onClick={() => handleDelete()}
+              onClick={() => handleDelete()} // Tiến hành xóa
               radius="md"
               fullWidth
             >
-              Yes, Delete
+              Có, xóa
             </Button>
           </Grid.Col>
         </Grid>

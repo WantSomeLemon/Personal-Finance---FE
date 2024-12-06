@@ -35,20 +35,27 @@ function DebtForm(props) {
     },
   });
 
+  // Hàm xử lý gửi form
   async function handleSubmit() {
-    await dispatch(addDebt({ ...form.values, token: token }));
-    await dispatch(fetchDebt({ token: token }));
-    form.reset();
+    try {
+      await dispatch(addDebt({ ...form.values, token: token })); // Thêm nợ vào Redux
+      await dispatch(fetchDebt({ token: token })); // Lấy lại danh sách nợ sau khi thêm
+      form.reset(); // Reset form sau khi gửi
+    } catch (error) {
+      console.error("Error when submitting the form:", error); // In lỗi nếu có sự cố
+    }
   }
 
+  // Hàm hủy bỏ thao tác và đóng form
   function handleCancel() {
-    form.reset();
-    setShowCancel(false);
-    dispatch(closeDebtForm());
+    form.reset(); // Reset dữ liệu form
+    setShowCancel(false); // Ẩn modal xác nhận
+    dispatch(closeDebtForm()); // Đóng form
   }
 
+  // Xác nhận hủy bỏ
   function handleCancelConfirm() {
-    setShowCancel(false);
+    setShowCancel(false); // Đóng modal xác nhận
   }
 
   return (
@@ -64,11 +71,11 @@ function DebtForm(props) {
       size="sm"
       opened={props.open}
       onClose={() => {
-        props.close();
+        props.close(); // Đóng form nếu đóng ngoài màn hình
       }}
       centered
     >
-      <LoadingOverlay visible={addDebtInProcess} overlayBlur={2} />
+      <LoadingOverlay visible={addDebtInProcess} overlayBlur={2} /> {/* Hiển thị overlay khi đang thêm nợ */}
       <Title style={{ marginLeft: 10, marginBottom: 20 }} order={3}>
         Add Debt
       </Title>
@@ -117,7 +124,7 @@ function DebtForm(props) {
                 radius="md"
                 variant={"default"}
                 fullWidth
-                onClick={handleCancel}
+                onClick={handleCancel} // Hủy thao tác và đóng form
               >
                 Discard
               </Button>
@@ -130,6 +137,7 @@ function DebtForm(props) {
           </Grid>
         </form>
       </Container>
+      {/* Modal xác nhận hủy bỏ */}
       <Modal
         overlayProps={{
           color: "red",
@@ -156,7 +164,7 @@ function DebtForm(props) {
               radius="md"
               variant={"default"}
               fullWidth
-              onClick={() => setShowCancel(false)}
+              onClick={() => setShowCancel(false)} // Đóng modal khi chọn "No"
             >
               No
             </Button>
@@ -164,7 +172,7 @@ function DebtForm(props) {
           <Grid.Col span={"auto"}>
             <Button
               color={"red"}
-              onClick={() => handleCancel()}
+              onClick={() => handleCancel()} // Xác nhận hủy bỏ và đóng form
               radius="md"
               fullWidth
             >
@@ -176,4 +184,5 @@ function DebtForm(props) {
     </Modal>
   );
 }
+
 export default DebtForm;

@@ -34,6 +34,8 @@ export default function TransactionEditForm(props) {
   const editTransactionInProcess = useSelector(
     (state) => state.transaction.editTransactionInProcess
   );
+  
+  // Khởi tạo form và validate các trường
   const form = useForm({
     initialValues: {
       amount: "",
@@ -52,9 +54,12 @@ export default function TransactionEditForm(props) {
     },
   });
 
+  // Fetch các danh mục và tài khoản khi component được render
   useEffect(() => {
     dispatch(fetchCategory({ token: token }));
     dispatch(fetchAccount({ token: token }));
+    
+    // Điền giá trị ban đầu cho form từ props
     form.setFieldValue("amount", props?.element?.amount);
     form.setFieldValue("categoryId", props?.element?.category?.categoryId);
     form.setFieldValue("paymentType", props?.element?.paymentType);
@@ -77,52 +82,64 @@ export default function TransactionEditForm(props) {
   ]);
 
   function handleDiscardCancel() {
-    setShowDiscard(false);
+    setShowDiscard(false); // Đóng modal xác nhận hủy bỏ
   }
 
+  // Hàm xử lý chỉnh sửa giao dịch
   async function handleEditTransaction(values) {
-    await dispatch(
-      editTransaction({
-        ...form.values,
-        token: token,
-        dateTime: form.values.dateTime.getTime(),
-        transactionId: props.element.id,
-      })
-    );
-    await dispatch(fetchTransaction({ token: token }));
-    await dispatch(fetchAccount({ token: token }));
-    form.reset();
-    props.close();
+    try {
+      // Dispatch cập nhật giao dịch
+      await dispatch(
+        editTransaction({
+          ...form.values,
+          token: token,
+          dateTime: form.values.dateTime.getTime(),
+          transactionId: props.element.id,
+        })
+      );
+      // Lấy lại danh sách giao dịch và tài khoản
+      await dispatch(fetchTransaction({ token: token }));
+      await dispatch(fetchAccount({ token: token }));
+      
+      // Reset form và đóng modal
+      form.reset();
+      props.close();
+    } catch (error) {
+      // Xử lý lỗi nếu có trong quá trình chỉnh sửa giao dịch
+      console.error("Error editing transaction:", error);
+      alert("There was an error updating the transaction. Please try again.");
+    }
   }
 
+  // Hàm xử lý lấy danh mục cho Select
   function categoryData() {
     const data = [];
-    // eslint-disable-next-line array-callback-return
     categoryList.map((val) => {
       data.push({ value: val.categoryId, label: val.name });
     });
     return data;
   }
+
+  // Hàm xử lý lấy tài khoản cho Select
   function accountData() {
     const data = [];
-    // eslint-disable-next-line array-callback-return
     accountList.map((val) => {
       data.push({ value: val.accountId, label: val.name });
     });
     return data;
   }
+
+  // Hàm xử lý lấy loại thanh toán dựa trên tài khoản đã chọn
   function paymentTypeDate() {
     const data = [];
     const selectedAccount = form.values.accountId;
     let paymentType = [];
-    // eslint-disable-next-line array-callback-return
     accountList.map((val) => {
       if (val.accountId === selectedAccount) {
         paymentType = val.paymentTypes;
       }
     });
     if (paymentType.length > 0) {
-      // eslint-disable-next-line array-callback-return
       paymentType.split(", ").map((val) => {
         data.push({ value: val, label: val });
       });
@@ -130,29 +147,40 @@ export default function TransactionEditForm(props) {
     return data;
   }
 
+  // Hàm xử lý loại giao dịch dựa trên danh mục
   function handleTransactionType() {
-    // eslint-disable-next-line array-callback-return
     categoryList.map((val) => {
       if (val.categoryId === form.values.categoryId) {
         form.values.type = val.type;
       }
     });
   }
+
+  // Hàm xử lý hủy chỉnh sửa
   function handleCancel() {
     form.reset();
     props.close();
   }
 
-  console.log("--------", form.isTouched());
-
+  // Hàm xử lý xóa giao dịch
   async function handleDelete() {
-    await dispatch(
-      removeTransaction({ token: token, transactionId: props.element.id })
-    );
-    await dispatch(fetchTransaction({ token: token }));
-    await dispatch(fetchAccount({ token: token }));
-    form.reset();
-    props.close();
+    try {
+      // Dispatch xóa giao dịch
+      await dispatch(
+        removeTransaction({ token: token, transactionId: props.element.id })
+      );
+      // Lấy lại danh sách giao dịch và tài khoản
+      await dispatch(fetchTransaction({ token: token }));
+      await dispatch(fetchAccount({ token: token }));
+      
+      // Reset form và đóng modal
+      form.reset();
+      props.close();
+    } catch (error) {
+      // Xử lý lỗi nếu có khi xóa giao dịch
+      console.error("Error deleting transaction:", error);
+      alert("There was an error deleting the transaction. Please try again.");
+    }
   }
 
   return (
@@ -272,94 +300,41 @@ export default function TransactionEditForm(props) {
                 {...form.getInputProps("type")}
               >
                 <Group mt="xs">
-                  <Radio disabled value="expense" label="Expenses" />
+                  <Radio disabled value="expense" label="Expense" />
                   <Radio disabled value="income" label="Income" />
                 </Group>
               </Radio.Group>
-              <Grid
-                style={{ marginTop: 16 }}
-                gutter={5}
-                gutterXs="md"
-                gutterMd="xl"
-                gutterXl={50}
-              >
-                <Grid.Col span={"auto"}>
-                  <Button
-                    radius="md"
-                    color="red"
-                    fullWidth
-                    onClick={() => setShowDiscard(true)}
-                  >
-                    Delete
-                  </Button>
-                </Grid.Col>
-                <Grid.Col span={"auto"}>
-                  <Button
-                    radius="md"
-                    variant={"default"}
-                    fullWidth
-                    onClick={() => handleCancel()}
-                  >
-                    Cancel
-                  </Button>
-                </Grid.Col>
-                <Grid.Col span={"auto"}>
-                  <Button
-                    loading={editTransactionInProcess}
-                    radius="md"
-                    fullWidth
-                    type="submit"
-                  >
-                    Save
-                  </Button>
-                </Grid.Col>
-              </Grid>
             </Grid.Col>
           </Grid>
+          <Group position="right" mt="md">
+            <Button variant="default" onClick={() => handleCancel()}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              color="green"
+              disabled={editTransactionInProcess}
+            >
+              Save Changes
+            </Button>
+          </Group>
         </form>
         <Modal
-          overlayProps={{
-            color: "red",
-            blur: 3,
-          }}
-          size="sm"
-          withinPortal={true}
-          closeOnClickOutside={false}
-          trapFocus={false}
-          withOverlay={false}
           opened={showDiscard}
-          onClose={handleDiscardCancel}
-          radius="lg"
-          centered
-          withCloseButton={false}
-          title="Confirm Delete"
+          onClose={() => setShowDiscard(false)}
+          title="Confirm Discard"
         >
-          <Text size={"sm"} c={"dimmed"} style={{ marginBottom: 10 }}>
-            This will delete this transaction.
+          <Text>
+            Are you sure you want to discard the changes made to this transaction?
           </Text>
-          <Grid>
-            <Grid.Col span={"auto"}>
-              <Button
-                radius="md"
-                color="gray"
-                fullWidth
-                onClick={() => setShowDiscard(false)}
-              >
-                No, Cancel
-              </Button>
-            </Grid.Col>
-            <Grid.Col span={"auto"}>
-              <Button
-                color={"red"}
-                onClick={() => handleDelete()}
-                radius="md"
-                fullWidth
-                type="submit"
-              >
-                Yes, Delete
-              </Button>
-            </Grid.Col>
-          </Grid>
+          <Group position="right" mt="md">
+            <Button variant="outline" onClick={handleDiscardCancel}>
+              Cancel
+            </Button>
+            <Button color="red" onClick={() => props.close()}>
+              Discard
+            </Button>
+          </Group>
         </Modal>
       </Modal>
     </>

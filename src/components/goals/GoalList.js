@@ -9,30 +9,46 @@ export default function GoalList() {
   const [displayGoalEditForm, setDisplayGoalEditForm] = useState(false);
   const [selectedEditElement, setSelectedEditElement] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6; // Số lượng mục trên mỗi trang
-  const totalPages = Math.ceil(goalList.length / itemsPerPage);
+  const itemsPerPage = 6; // Số lượng mục hiển thị trên mỗi trang
+  const totalPages = Math.ceil(goalList.length / itemsPerPage); // Tính tổng số trang
 
+  // Hàm đóng form chỉnh sửa mục tiêu
   function handleGoalEditFormClose() {
     setDisplayGoalEditForm(false);
   }
 
+  // Hàm xử lý sự kiện chỉnh sửa mục tiêu
   function handleEdit(element) {
-    setSelectedEditElement(element);
-    setDisplayGoalEditForm(true);
+    try {
+      setSelectedEditElement(element); // Chọn mục tiêu cần chỉnh sửa
+      setDisplayGoalEditForm(true); // Hiển thị form chỉnh sửa
+    } catch (error) {
+      console.error("Lỗi khi mở form chỉnh sửa:", error); // Xử lý lỗi nếu có
+    }
   }
 
+  // Hàm định dạng ngày tháng
   function handleDate(date) {
-    const formatDate = new Date(date);
-    const dateOptions = { year: "numeric", month: "long", day: "numeric" };
-    return formatDate.toLocaleDateString("en-US", dateOptions);
+    try {
+      const formatDate = new Date(date); // Chuyển đổi chuỗi ngày thành đối tượng Date
+      if (isNaN(formatDate.getTime())) {
+        throw new Error("Invalid date");
+      }
+      const dateOptions = { year: "numeric", month: "long", day: "numeric" }; // Định dạng ngày
+      return formatDate.toLocaleDateString("en-US", dateOptions); // Trả về ngày theo định dạng Mỹ
+    } catch (error) {
+      console.error("Lỗi khi định dạng ngày:", error); // Xử lý lỗi nếu có
+      return "Invalid Date"; // Trả về thông báo lỗi nếu định dạng không thành công
+    }
   }
 
-  // Lọc danh sách mục hiển thị cho trang hiện tại
+  // Lọc dữ liệu mục tiêu cho trang hiện tại
   const currentData = goalList.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
+  // Tạo các hàng trong bảng từ dữ liệu hiện tại
   const rows = currentData.map((element) => (
     <tr key={element.name}>
       <td>
@@ -51,6 +67,7 @@ export default function GoalList() {
         <Text fw={700}>{element.status}</Text>
       </td>
       <td>
+        {/* Nút chỉnh sửa */}
         <EditSVG onClick={() => handleEdit(element)} />
       </td>
     </tr>
@@ -58,6 +75,7 @@ export default function GoalList() {
 
   return (
     <div>
+      {/* Hiển thị form chỉnh sửa nếu cần */}
       {displayGoalEditForm && (
         <GoalEditForm
           element={selectedEditElement}

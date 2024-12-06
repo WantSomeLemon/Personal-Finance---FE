@@ -10,33 +10,39 @@ import { ReactComponent as SuccessIcon } from "../../assets/success-icon.svg";
 
 export default function ReportList() {
   const token = useSelector((state) => state.user.token);
-  const [transactionReportLoading, setTransactionReportLoading] =
-    useState(false);
+  const [transactionReportLoading, setTransactionReportLoading] = useState(false);
+
   async function handleTransactionReportExcel() {
-    setTransactionReportLoading(true);
+    setTransactionReportLoading(true); // Bắt đầu tải báo cáo
     try {
+      // Gửi yêu cầu tải báo cáo excel từ API
       const response = await axios.get(`${baseUrl}/report/transaction/excel`, {
         headers: { Authorization: `Bearer ${token}` },
-        responseType: "blob", // Set the response type to blob
+        responseType: "blob", // Thiết lập kiểu phản hồi là blob (dành cho file)
       });
+
+      // Lưu file Excel sau khi tải về
       const date = new Date();
       saveAs(
         response.data,
         `TransactionReport_${date.toLocaleDateString()}.xlsx`
       );
+
+      // Thông báo tải xong
       setTransactionReportLoading(false);
       notifications.show({
         title: "Started downloading...",
-        message: "see your downloads!!",
+        message: "See your downloads!!",
         icon: <SuccessIcon />,
         radius: "lg",
         autoClose: 5000,
       });
     } catch (error) {
+      // Xử lý lỗi khi tải báo cáo
       console.error("Error downloading Excel file:", error);
       setTransactionReportLoading(false);
       notifications.show({
-        title: error.message,
+        title: "Download failed",
         message: "Please try again!!",
         radius: "lg",
         color: "red",
@@ -57,9 +63,9 @@ export default function ReportList() {
               This will generate a full report on transaction in excel format.
             </Text>
             <Button
-              loading={transactionReportLoading}
-              onClick={() => handleTransactionReportExcel()}
-              leftIcon={<ExcelIcon style={{ height: 16, width: 16 }} />}
+              loading={transactionReportLoading} // Hiển thị trạng thái đang tải
+              onClick={() => handleTransactionReportExcel()} // Gọi hàm khi nhấn nút
+              leftIcon={<ExcelIcon style={{ height: 16, width: 16 }} />} // Biểu tượng Excel
               variant="light"
               color="green"
               fullWidth

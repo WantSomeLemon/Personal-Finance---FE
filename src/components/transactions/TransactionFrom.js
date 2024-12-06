@@ -29,10 +29,16 @@ export default function TransactionForm(props) {
   const token = useSelector((state) => state.user.token);
   const isMobile = useSelector((state) => state.user.isMobile);
   useSelector((state) => state.transaction.addTransactionInProcess);
+
   useEffect(() => {
-    dispatch(fetchCategory({ token: token }));
-    dispatch(fetchAccount({ token: token }));
+    dispatch(fetchCategory({ token: token })).catch((error) => {
+      console.error("Error fetching categories:", error); // Log errors when fetching categories
+    });
+    dispatch(fetchAccount({ token: token })).catch((error) => {
+      console.error("Error fetching accounts:", error); // Log errors when fetching accounts
+    });
   }, [dispatch, token]);
+
   const [showDiscard, setShowDiscard] = useState(false);
   const categoryList = useSelector((state) => state.category.categoryList);
   const accountList = useSelector((state) => state.account.accountList);
@@ -54,74 +60,84 @@ export default function TransactionForm(props) {
     },
   });
 
+  // Handle discarding changes
   function handleDiscard() {
     form.reset();
     setShowDiscard(false);
     dispatch(closeTransactionForm());
   }
 
+  // Handle canceling discard
   function handleDiscardCancel() {
     setShowDiscard(false);
   }
 
+  // Handle form submission to add transaction
   async function handleAddTransaction(values) {
-    console.log(values);
-    await dispatch(
-      addTransaction({
-        ...form.values,
-        token: token,
-        dateTime: form.values.dateTime.getTime(),
-      })
-    );
-    await dispatch(fetchTransaction({ token: token }));
-    await dispatch(fetchAccount({ token: token }));
-    form.reset();
-    props.close();
+    try {
+      console.log(values);
+      await dispatch(
+        addTransaction({
+          ...form.values,
+          token: token,
+          dateTime: form.values.dateTime.getTime(),
+        })
+      ).unwrap(); // Use unwrap() to get the raw response and handle errors
+      await dispatch(fetchTransaction({ token: token })).unwrap();
+      await dispatch(fetchAccount({ token: token })).unwrap();
+      form.reset();
+      props.close();
+    } catch (error) {
+      console.error("Error adding transaction:", error); // Log errors when adding a transaction
+      // Optionally show a toast or message to inform the user of the error
+    }
   }
 
+  // Prepare category data for the Select component
   function categoryData() {
     const data = [];
-    // eslint-disable-next-line array-callback-return
-    categoryList.map((val) => {
+    categoryList.forEach((val) => {
       data.push({ value: val.categoryId, label: val.name });
     });
     return data;
   }
+
+  // Prepare account data for the Select component
   function accountData() {
     const data = [];
-    // eslint-disable-next-line array-callback-return
-    accountList.map((val) => {
+    accountList.forEach((val) => {
       data.push({ value: val.accountId, label: val.name });
     });
     return data;
   }
+
+  // Prepare payment types based on selected account
   function paymentTypeDate() {
     const data = [];
     const selectedAccount = form.values.accountId;
     let paymentType = [];
-    // eslint-disable-next-line array-callback-return
-    accountList.map((val) => {
+    accountList.forEach((val) => {
       if (val.accountId === selectedAccount) {
         paymentType = val.paymentTypes;
       }
     });
     if (paymentType.length > 0) {
-      // eslint-disable-next-line array-callback-return
-      paymentType.split(", ").map((val) => {
+      paymentType.split(", ").forEach((val) => {
         data.push({ value: val, label: val });
       });
     }
     return data;
   }
 
+  // Handle transaction type based on selected category
   function handleTransactionType() {
-    // eslint-disable-next-line array-callback-return
-    categoryList.map((val) => {
+    categoryList.forEach((val) => {
       if (val.categoryId === form.values.categoryId) {
         form.values.type = val.type;
       }
     });
   }
+
   return (
     <>
       <Modal
@@ -286,29 +302,14 @@ export default function TransactionForm(props) {
           <Text size={"sm"} c={"dimmed"} style={{ marginBottom: 10 }}>
             You will lose all the content you entered
           </Text>
-          <Grid>
-            <Grid.Col span={"auto"}>
-              <Button
-                radius="md"
-                color="gray"
-                fullWidth
-                onClick={() => setShowDiscard(false)}
-              >
-                No
-              </Button>
-            </Grid.Col>
-            <Grid.Col span={"auto"}>
-              <Button
-                color={"red"}
-                onClick={() => handleDiscard()}
-                radius="md"
-                fullWidth
-                type="submit"
-              >
-                Yes
-              </Button>
-            </Grid.Col>
-          </Grid>
+          <Group position="apart">
+            <Button variant="outline" onClick={handleDiscardCancel}>
+              Cancel
+            </Button>
+            <Button color="red" onClick={handleDiscard}>
+              Discard
+            </Button>
+          </Group>
         </Modal>
       </Modal>
     </>

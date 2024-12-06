@@ -13,8 +13,7 @@ import EditNameForm from "../components/settings/EditNameForm";
 import EditEmailForm from "../components/settings/EditEmailForm";
 import ChangePasswordForm from "../components/settings/ChangePasswordForm";
 import DeleteAccount from "../components/settings/DeleteAccount";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { ReactComponent as AvatarIcon } from "../assets/User_duotone.svg";
 import { editImage, validateToken } from "../features/userSlice";
 import Layout from "../components/layout/Layout";
@@ -25,18 +24,29 @@ export default function ProfileScreen() {
   const [formName, setFormName] = useState(null);
   const inputRef = useRef(null);
 
-  //image
+  // Image handling
   const token = useSelector((state) => state.user.token);
   const dispatch = useDispatch();
 
+  // Handle clicking on profile picture to open file input
   const handleImageClick = () => {
     inputRef.current.click();
   };
+
+  // Handle image change (file upload)
   const handleImageChange = async (event) => {
-    const file = event.target.files[0];
-    await dispatch(editImage({ image: file, token: token }));
-    await dispatch(validateToken(token));
+    try {
+      const file = event.target.files[0];
+      if (file) {
+        // Dispatch action to update profile image
+        await dispatch(editImage({ image: file, token }));
+        await dispatch(validateToken(token)); // Ensure token validation after image update
+      }
+    } catch (error) {
+      console.error("Error uploading image: ", error); // Log any error that occurs during the file upload
+    }
   };
+
   const currentUser = useSelector((state) => state.user.currentUser);
 
   return (
@@ -61,6 +71,7 @@ export default function ProfileScreen() {
           </div>
 
           <div style={{ display: "inline", width: "50%" }}>
+            {/* Name section */}
             <div
               style={{
                 display: "flex",
@@ -104,6 +115,7 @@ export default function ProfileScreen() {
             </div>
             <Space h="lg" />
 
+            {/* Email section */}
             <div
               style={{
                 display: "flex",
@@ -145,6 +157,8 @@ export default function ProfileScreen() {
               </Button>
             </div>
           </div>
+
+          {/* Profile image section */}
           <div
             style={{
               width: "30%",
@@ -164,7 +178,7 @@ export default function ProfileScreen() {
               {currentUser.profileImage ? (
                 <img
                   src={`data:image/jpeg;base64,${currentUser.profileImage}`}
-                  alt="Default"
+                  alt="Profile"
                   style={{
                     width: "150px",
                     height: "150px",
@@ -184,15 +198,6 @@ export default function ProfileScreen() {
                     borderRadius: "1000px",
                   }}
                 />
-                // <img
-                //   src={logo}
-                //   alt="Default image"
-                //   style={{
-                //     width: "150px",
-                //     height: "150px",
-                //     borderRadius: "1000px",
-                //   }}
-                // />
               )}
 
               <input
@@ -207,7 +212,6 @@ export default function ProfileScreen() {
                 radius="md"
                 style={{ position: "absolute", bottom: "0", left: "100px" }}
                 type="file"
-                // onClick={open}
               >
                 Edit
               </Button>
@@ -229,7 +233,7 @@ export default function ProfileScreen() {
             radius="md"
             style={{ width: "200px" }}
             onClick={() => {
-              setFormName("Change Passwod");
+              setFormName("Change Password");
               setForm(<ChangePasswordForm close={close} />);
               open();
             }}
@@ -251,6 +255,8 @@ export default function ProfileScreen() {
             Delete Account
           </Button>
         </div>
+
+        {/* Modal for editing settings */}
         <Modal
           opened={opened}
           onClose={close}

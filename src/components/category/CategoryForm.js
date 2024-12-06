@@ -12,15 +12,17 @@ import {
   LoadingOverlay
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import {useDispatch, useSelector} from "react-redux";
-import {addCategory, closeCategoryForm, fetchCategory} from "../../features/categorySlice";
-import {useState} from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { addCategory, closeCategoryForm, fetchCategory } from "../../features/categorySlice";
+import { useState } from "react";
 
 export default function CategoryForm(props) {
-  const dispatch = useDispatch()
-  const token  = useSelector(state => state.user.token)
-  const addCategoryInProcess = useSelector(state => state.category.addCategoryInProcess)
-  const [showDiscard,setShowDiscard] = useState(false);
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.user.token);
+  const addCategoryInProcess = useSelector((state) => state.category.addCategoryInProcess);
+  const [showDiscard, setShowDiscard] = useState(false);
+
+  // Khởi tạo form với các giá trị ban đầu và quy tắc xác thực
   const form = useForm({
     initialValues: {
       name: "",
@@ -28,28 +30,34 @@ export default function CategoryForm(props) {
       type: "",
     },
     validate: {
-      name: (value) => (
-          value !== '' ? null : 'Name is required'
-      ),
-      type: (value) => (
-          value !== '' ? null : 'Select the type'
-      ),
+      name: (value) => (value !== "" ? null : "Tên là bắt buộc"),
+      type: (value) => (value !== "" ? null : "Chọn loại danh mục"),
     },
   });
-  async function handleSubmit(){
-    await dispatch(addCategory({...form.values,token:token}))
-    await dispatch(fetchCategory({token:token}))
-    form.reset()
+
+  // Xử lý khi gửi form để thêm danh mục
+  async function handleSubmit() {
+    try {
+      // Gửi action addCategory để lưu danh mục mới
+      await dispatch(addCategory({ ...form.values, token: token }));
+      // Lấy lại danh sách danh mục sau khi thêm mới
+      await dispatch(fetchCategory({ token: token }));
+      form.reset(); // Reset form sau khi gửi
+    } catch (error) {
+      console.error("Thêm danh mục không thành công:", error); // Ghi log bất kỳ lỗi nào xảy ra khi gửi form
+    }
   }
 
-  function handleDiscard(){
-    form.reset()
-    setShowDiscard(false)
-    dispatch(closeCategoryForm())
+  // Xử lý khi hủy bỏ form mà không lưu
+  function handleDiscard() {
+    form.reset(); // Reset form
+    setShowDiscard(false); // Đóng modal xác nhận hủy bỏ
+    dispatch(closeCategoryForm()); // Đóng form danh mục
   }
 
-  function handleDiscardCancel(){
-    setShowDiscard(false)
+  // Hủy bỏ hành động hủy và đóng modal hủy bỏ
+  function handleDiscardCancel() {
+    setShowDiscard(false);
   }
 
   return (
@@ -65,52 +73,57 @@ export default function CategoryForm(props) {
         blur: 3,
       }}
       onClose={() => {
-        props.close();
+        props.close(); // Đóng modal form danh mục
       }}
       centered
     >
+      {/* Hiển thị overlay tải trong khi đang thêm danh mục */}
       <LoadingOverlay visible={addCategoryInProcess} overlayBlur={2} />
+      
       <Title style={{ marginLeft: 10 }} order={3}>
-        Add Category
+        Thêm Danh Mục
       </Title>
       <Container size="md">
         <form
-          onSubmit={form.onSubmit((values) => handleSubmit())}
+          onSubmit={form.onSubmit((values) => handleSubmit())} // Xử lý khi gửi form
         >
-
+          {/* Trường nhập liệu cho tên danh mục */}
           <TextInput
             data-autofocus
             radius="md"
             style={{ marginTop: 16 }}
             withAsterisk
-            label="Name"
-            placeholder="Name"
+            label="Tên"
+            placeholder="Tên"
             type="text"
             {...form.getInputProps("name")}
           />
+          {/* Textarea cho mô tả danh mục */}
           <Textarea
             radius="md"
             style={{ marginTop: 16 }}
-            label="Description"
-            placeholder="Description"
+            label="Mô tả"
+            placeholder="Mô tả"
             type="textarea"
             {...form.getInputProps("description")}
           />
+          {/* Các radio button cho loại danh mục */}
           <Radio.Group
             radius="md"
             style={{ marginTop: 16 }}
             name="categoryType"
-            label="Type"
-            description="select type of the category"
+            label="Loại"
+            description="Chọn loại danh mục"
             withAsterisk
             {...form.getInputProps("type")}
           >
             <Group mt="xs">
-              <Radio value="expense" label="Expense" />
-              <Radio value="income" label="Income" />
+              <Radio value="expense" label="Chi phí" />
+              <Radio value="income" label="Thu nhập" />
             </Group>
           </Radio.Group>
 
+          {/* Các nút để hủy bỏ hoặc lưu */}
           <Grid
             style={{ marginTop: 16, marginBottom: 8 }}
             gutter={5}
@@ -119,35 +132,65 @@ export default function CategoryForm(props) {
             gutterXl={50}
           >
             <Grid.Col span={"auto"}>
-              <Button radius="md" variant={"default"} fullWidth onClick={() => setShowDiscard(true)}>
-                Discard
+              <Button
+                radius="md"
+                variant={"default"}
+                fullWidth
+                onClick={() => setShowDiscard(true)} // Hiển thị modal xác nhận hủy bỏ
+              >
+                Hủy bỏ
               </Button>
             </Grid.Col>
             <Grid.Col span={"auto"}>
               <Button radius="md" fullWidth type="submit">
-                Save
+                Lưu
               </Button>
             </Grid.Col>
           </Grid>
         </form>
       </Container>
+
+      {/* Modal để xác nhận hành động hủy bỏ */}
       <Modal
-          overlayProps={{
-            color: "red",
-            blur: 3,
-          }}
-          size="auto" withinPortal={true} closeOnClickOutside={false} trapFocus={false} withOverlay={false} opened={showDiscard} onClose={handleDiscardCancel} radius="lg" centered  withCloseButton={false} title="Confirm Discard">
-        <Text size={"sm"} c={"dimmed"} style={{marginBottom:10}}>You will lose all the content you entered</Text>
-        <Grid
-        >
+        overlayProps={{
+          color: "red",
+          blur: 3,
+        }}
+        size="auto"
+        withinPortal={true}
+        closeOnClickOutside={false}
+        trapFocus={false}
+        withOverlay={false}
+        opened={showDiscard}
+        onClose={handleDiscardCancel}
+        radius="lg"
+        centered
+        withCloseButton={false}
+        title="Xác nhận Hủy bỏ"
+      >
+        <Text size={"sm"} c={"dimmed"} style={{ marginBottom: 10 }}>
+          Bạn sẽ mất tất cả nội dung đã nhập
+        </Text>
+        <Grid>
           <Grid.Col span={"auto"}>
-            <Button radius="md" color="gray" fullWidth  onClick={() => setShowDiscard(false)}>
-              No
+            <Button
+              radius="md"
+              color="gray"
+              fullWidth
+              onClick={() => setShowDiscard(false)} // Đóng modal xác nhận hủy bỏ
+            >
+              Không
             </Button>
           </Grid.Col>
           <Grid.Col span={"auto"}>
-            <Button color={"red"} onClick={()=> handleDiscard()} radius="md" fullWidth type="submit">
-              Yes
+            <Button
+              color={"red"}
+              onClick={() => handleDiscard()} // Hủy bỏ và đóng form
+              radius="md"
+              fullWidth
+              type="submit"
+            >
+              Có
             </Button>
           </Grid.Col>
         </Grid>

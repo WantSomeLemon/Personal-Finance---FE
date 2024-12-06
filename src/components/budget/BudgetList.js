@@ -25,14 +25,21 @@ export default function BudgetList() {
   const budgetList = useSelector((state) => state.budget.budgetList);
   const totalPages = Math.ceil(budgetList.length / itemsPerPage);
 
+  // Lấy dữ liệu ngân sách khi component được render
   useEffect(() => {
-    dispatch(fetchBudget({ token: token }));
+    try {
+      dispatch(fetchBudget({ token: token }));
+    } catch (error) {
+      console.error("Lỗi khi tải dữ liệu ngân sách:", error); // Ghi lại lỗi nếu có
+    }
   }, [dispatch, token]);
 
+  // Đóng form chỉnh sửa ngân sách
   function handleBudgetEditFormClose() {
     setDisplayBudgetEditForm(false);
   }
 
+  // Mở form chỉnh sửa ngân sách và chọn phần tử cần chỉnh sửa
   function handleBudgetEditFormOpen(element) {
     setSelectedEditElement(element);
     setDisplayBudgetEditForm(true);
@@ -44,6 +51,7 @@ export default function BudgetList() {
     currentPage * itemsPerPage
   );
 
+  // Duyệt qua danh sách ngân sách và tạo các dòng dữ liệu
   const rows = currentData.map((element) => {
     const cardContent = (
       <div>
@@ -72,6 +80,7 @@ export default function BudgetList() {
       </div>
     );
 
+    // Xử lý chế độ mobile
     if (isMobile) {
       return (
         <Card
@@ -126,6 +135,7 @@ export default function BudgetList() {
 
   return (
     <div>
+      {/* Hiển thị form chỉnh sửa ngân sách nếu cần */}
       {displayBudgetEditForm && (
         <BudgetEditForm
           element={selectedEditElement}

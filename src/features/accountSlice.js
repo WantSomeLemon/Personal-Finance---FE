@@ -8,64 +8,72 @@ import {
 import { notifications } from "@mantine/notifications";
 import { ReactComponent as SuccessIcon } from "../assets/success-icon.svg";
 
+// Async thunk for adding an account
 export const addAccount = createAsyncThunk(
   "account/addAccount",
-  async (body) => {
-    return createAccount(
-      body.token,
-      body.name,
-      body.currentBalance,
-      body.paymentTypes
-    )
-      .then((res) => {
-        return res.data;
-      })
-      .catch((err) => {
-        return err.response.date;
-      });
+  async (body, { rejectWithValue }) => {
+    try {
+      const response = await createAccount(
+        body.token,
+        body.name,
+        body.currentBalance,
+        body.paymentTypes
+      );
+      return response.data; // On success, return response data
+    } catch (err) {
+      // If an error occurs, log it and return error response
+      console.error(err);
+      return rejectWithValue(err.response ? err.response.data : err.message);
+    }
   }
 );
 
+// Async thunk for updating an account
 export const changeAccount = createAsyncThunk(
   "account/changeAccount",
-  async (body) => {
-    console.log("account/changeAccount");
-    return updateAccount(body.token, body)
-      .then((res) => {
-        return res.data;
-      })
-      .catch((err) => {
-        return err.response.date;
-      });
+  async (body, { rejectWithValue }) => {
+    try {
+      const response = await updateAccount(body.token, body);
+      return response.data; // On success, return response data
+    } catch (err) {
+      // If an error occurs, log it and return error response
+      console.error(err);
+      return rejectWithValue(err.response ? err.response.data : err.message);
+    }
   }
 );
 
+// Async thunk for deleting an account
 export const removeAccount = createAsyncThunk(
   "account/removeAccount",
-  async (body) => {
-    return deleteAccount(body.token, body.accountId)
-      .then((res) => {
-        return res.data;
-      })
-      .catch((err) => {
-        return err.response.date;
-      });
+  async (body, { rejectWithValue }) => {
+    try {
+      const response = await deleteAccount(body.token, body.accountId);
+      return response.data; // On success, return response data
+    } catch (err) {
+      // If an error occurs, log it and return error response
+      console.error(err);
+      return rejectWithValue(err.response ? err.response.data : err.message);
+    }
   }
 );
 
+// Async thunk for fetching accounts
 export const fetchAccount = createAsyncThunk(
   "account/fetchAccount",
-  async (body) => {
-    return getAccount(body.token)
-      .then((res) => {
-        return res.data;
-      })
-      .catch((err) => {
-        return err.response.date;
-      });
+  async (body, { rejectWithValue }) => {
+    try {
+      const response = await getAccount(body.token);
+      return response.data; // On success, return response data
+    } catch (err) {
+      // If an error occurs, log it and return error response
+      console.error(err);
+      return rejectWithValue(err.response ? err.response.data : err.message);
+    }
   }
 );
 
+// Redux slice for account state management
 const accountSlice = createSlice({
   name: "account",
   initialState: {
@@ -75,127 +83,141 @@ const accountSlice = createSlice({
     accountList: [],
   },
   reducers: {
+    // Action to show the account form
     showAccountForm: (state) => {
       state.displayAccountForm = true;
     },
+    // Action to close the account form
     closeAccountForm: (state) => {
       state.displayAccountForm = false;
     },
   },
   extraReducers: {
+    // Handling addAccount actions
     [addAccount.pending]: (state) => {
-      state.addAccountInProcess = true;
+      state.addAccountInProcess = true; // Start the process
     },
     [addAccount.fulfilled]: (state, action) => {
       if (action.payload.message === "success") {
+        // Show success notification if the account is added successfully
         notifications.show({
           title: "Account Added",
-          message: "your account added successfuly!!",
+          message: "Your account was added successfully!",
           icon: <SuccessIcon />,
           radius: "lg",
           autoClose: 5000,
         });
       } else {
+        // Show failure notification if there was an issue
         notifications.show({
           title: action.payload.message,
-          message: "Please try again!!",
+          message: "Please try again!",
           radius: "lg",
           color: "red",
           autoClose: 5000,
         });
       }
-      state.addAccountInProcess = false;
-      state.displayAccountForm = false;
+      state.addAccountInProcess = false; // End the process
+      state.displayAccountForm = false; // Close the form
     },
-    [addAccount.rejected]: (state) => {
+    [addAccount.rejected]: (state, action) => {
+      // Show error notification if the account creation failed
       state.addAccountInProcess = false;
       notifications.show({
-        title: "Account Create failed",
-        message: "Please try again!!",
+        title: "Account Creation Failed",
+        message: action.payload || "Please try again!",
         radius: "lg",
         color: "red",
         autoClose: 5000,
       });
     },
+    // Handling fetchAccount actions
     [fetchAccount.pending]: (state) => {
-      state.fetchAccountInProcess = true;
-      console.log("Account fetch pending");
+      state.fetchAccountInProcess = true; // Start the process
     },
     [fetchAccount.fulfilled]: (state, action) => {
       if (action.payload.message === "success") {
+        // Update account list if fetching was successful
         state.accountList = action.payload.data;
       } else {
         console.log(action.payload.message);
       }
-      state.fetchAccountInProcess = false;
+      state.fetchAccountInProcess = false; // End the process
     },
-    [fetchAccount.rejected]: (state) => {
+    [fetchAccount.rejected]: (state, action) => {
+      // Show error notification if fetching accounts failed
       state.fetchAccountInProcess = false;
-      console.log("Account fetch failed");
+      console.log("Account fetch failed", action.payload);
     },
+    // Handling changeAccount actions
     [changeAccount.pending]: (state) => {
-      console.log("Account update pending");
+      console.log("Account update pending"); // Log pending action
     },
     [changeAccount.fulfilled]: (state, action) => {
       if (action.payload.message === "success") {
+        // Show success notification if account update is successful
         notifications.show({
           title: "Account Updated",
-          message: "your account updated successfuly!!",
+          message: "Your account was updated successfully!",
           icon: <SuccessIcon />,
           radius: "lg",
           autoClose: 5000,
         });
       } else {
-        console.log(action.payload.message);
+        console.log(action.payload.message); // Log failure message
         notifications.show({
           title: action.payload.message,
-          message: "Please try again!!",
+          message: "Please try again!",
           radius: "lg",
           color: "red",
           autoClose: 5000,
         });
       }
-      state.fetchAccountInProcess = false;
+      state.fetchAccountInProcess = false; // End the process
     },
-    [changeAccount.rejected]: (state) => {
-      console.log("Account update failed");
+    [changeAccount.rejected]: (state, action) => {
+      // Show error notification if the update failed
+      console.log("Account update failed", action.payload);
       notifications.show({
-        title: "Account update failed",
-        message: "Please try again!!",
+        title: "Account Update Failed",
+        message: "Please try again!",
         radius: "lg",
         color: "red",
         autoClose: 5000,
       });
     },
+    // Handling removeAccount actions
     [removeAccount.pending]: (state) => {
-      console.log("Account update pending");
+      console.log("Account delete pending"); // Log pending action
     },
     [removeAccount.fulfilled]: (state, action) => {
       if (action.payload.message === "success") {
+        // Show success notification if account deletion is successful
         notifications.show({
           title: "Account Deleted",
-          message: "your account deleted successfuly!!",
+          message: "Your account was deleted successfully!",
           icon: <SuccessIcon />,
           radius: "lg",
           autoClose: 5000,
         });
       } else {
-        console.log(action.payload.message);
+        console.log(action.payload.message); // Log failure message
         notifications.show({
           title: action.payload.message,
-          message: "Please try again!!",
+          message: "Please try again!",
           radius: "lg",
           color: "red",
           autoClose: 5000,
         });
       }
-      state.fetchAccountInProcess = false;
+      state.fetchAccountInProcess = false; // End the process
     },
-    [removeAccount.rejected]: (state) => {
-      console.log("Account Delete failed");
+    [removeAccount.rejected]: (state, action) => {
+      // Show error notification if deletion failed
+      console.log("Account delete failed", action.payload);
       notifications.show({
-        title: "Account deleted failed",
-        message: "Please try again!!",
+        title: "Account Deletion Failed",
+        message: "Please try again!",
         radius: "lg",
         color: "red",
         autoClose: 5000,
@@ -204,6 +226,6 @@ const accountSlice = createSlice({
   },
 });
 
+// Export actions and reducer
 export const { showAccountForm, closeAccountForm } = accountSlice.actions;
-
 export default accountSlice;

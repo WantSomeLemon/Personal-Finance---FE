@@ -21,12 +21,13 @@ import {
 
 export default function AccountForm(props) {
   const dispatch = useDispatch();
-  const token = useSelector((state) => state.user.token);
+  const token = useSelector((state) => state.user.token); // Lấy token người dùng từ store
   const addAccountInProcess = useSelector(
-    (state) => state.account.addAccountInProcess
+    (state) => state.account.addAccountInProcess // Kiểm tra xem việc thêm tài khoản có đang diễn ra không
   );
-  const [showDiscard, setShowDiscard] = useState(false);
+  const [showDiscard, setShowDiscard] = useState(false); // Trạng thái hiển thị modal xác nhận bỏ qua
 
+  // Khởi tạo form và các validation
   const form = useForm({
     initialValues: {
       name: "",
@@ -34,28 +35,41 @@ export default function AccountForm(props) {
       paymentTypes: [],
     },
     validate: {
-      name: (value) => (value ? null : "Name is required"),
+      name: (value) => (value ? null : "Name is required"), // Kiểm tra tên tài khoản có được nhập không
       currentBalance: (value) =>
-        value ? null : "Enter the current balance of your account",
+        value ? null : "Enter the current balance of your account", // Kiểm tra số dư có được nhập không
       paymentTypes: (value) =>
-        value.length > 0 ? null : "Select at least one payment type",
+        value.length > 0 ? null : "Select at least one payment type", // Kiểm tra loại thanh toán có được chọn không
     },
   });
 
+  // Hàm xử lý khi gửi thông tin tài khoản
   async function handleSubmit() {
-    await dispatch(addAccount({ ...form.values, token }));
-    await dispatch(fetchAccount({ token }));
-    form.reset();
+    try {
+      // Gửi action để thêm tài khoản mới và lấy danh sách tài khoản mới
+      await dispatch(addAccount({ ...form.values, token }));
+      await dispatch(fetchAccount({ token }));
+      form.reset(); // Reset lại form sau khi thêm thành công
+    } catch (error) {
+      // Xử lý lỗi nếu có khi dispatch các action
+      console.error("Error adding account:", error); // Log lỗi ra console
+    }
   }
 
+  // Hàm xử lý khi nhấn nút "Discard"
   function handleDiscard() {
-    form.reset();
-    setShowDiscard(false);
-    dispatch(closeAccountForm());
+    try {
+      form.reset(); // Reset lại form
+      setShowDiscard(false); // Ẩn modal xác nhận
+      dispatch(closeAccountForm()); // Đóng form tạo tài khoản
+    } catch (error) {
+      console.error("Error discarding form:", error); // Log lỗi nếu có
+    }
   }
 
+  // Hàm xử lý khi hủy bỏ bỏ qua
   function handleDiscardCancel() {
-    setShowDiscard(false);
+    setShowDiscard(false); // Đóng modal xác nhận
   }
 
   return (
@@ -73,12 +87,14 @@ export default function AccountForm(props) {
       onClose={props.close}
       centered
     >
+      {/* Overlay hiển thị khi đang xử lý thêm tài khoản */}
       <LoadingOverlay visible={addAccountInProcess} overlayBlur={2} />
       <Title style={{ marginLeft: 10 }} order={3}>
         Add Account
       </Title>
       <Container size="md">
         <form onSubmit={form.onSubmit(() => handleSubmit())}>
+          {/* Input cho tên tài khoản */}
           <TextInput
             radius="md"
             style={{ marginTop: 16 }}
@@ -88,6 +104,7 @@ export default function AccountForm(props) {
             type="text"
             {...form.getInputProps("name")}
           />
+          {/* Input cho số dư tài khoản */}
           <TextInput
             radius="md"
             style={{ marginTop: 16 }}
@@ -97,6 +114,7 @@ export default function AccountForm(props) {
             type="number"
             {...form.getInputProps("currentBalance")}
           />
+          {/* Checkbox group cho loại thanh toán */}
           <Checkbox.Group
             style={{ marginTop: 16 }}
             {...form.getInputProps("paymentTypes")}
@@ -109,6 +127,7 @@ export default function AccountForm(props) {
               <Checkbox value="Cash" label="Cash" />
             </Group>
           </Checkbox.Group>
+          {/* Các nút hành động */}
           <Grid
             style={{ marginTop: 16, marginBottom: 8 }}
             gutter={5}
@@ -120,7 +139,7 @@ export default function AccountForm(props) {
               <Button
                 radius="md"
                 variant="default"
-                onClick={() => setShowDiscard(true)}
+                onClick={() => setShowDiscard(true)} // Hiển thị modal xác nhận bỏ qua
                 fullWidth
               >
                 Discard
@@ -134,6 +153,8 @@ export default function AccountForm(props) {
           </Grid>
         </form>
       </Container>
+      
+      {/* Modal xác nhận bỏ qua */}
       <Modal
         overlayProps={{
           color: "red",
@@ -160,7 +181,7 @@ export default function AccountForm(props) {
               radius="md"
               color="gray"
               fullWidth
-              onClick={handleDiscardCancel}
+              onClick={handleDiscardCancel} // Hủy bỏ bỏ qua
             >
               No
             </Button>
@@ -168,7 +189,7 @@ export default function AccountForm(props) {
           <Grid.Col span={"auto"}>
             <Button
               color="red"
-              onClick={handleDiscard}
+              onClick={handleDiscard} // Xác nhận bỏ qua và reset form
               radius="md"
               fullWidth
               type="submit"

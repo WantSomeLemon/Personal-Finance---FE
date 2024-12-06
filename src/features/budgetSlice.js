@@ -21,19 +21,21 @@ const showNotification = (type, title, message) => {
   if (type === "success") {
     options.icon = <SuccessIcon />;
   } else if (type === "error") {
-    options.color = "red";
+    options.color = "red"; // Màu đỏ cho thông báo lỗi
   }
 
-  notifications.show(options);
+  notifications.show(options); // Hiển thị thông báo
 };
 
-// Thunks
+// Thunks (Async action creators)
 export const addBudget = createAsyncThunk("budget/addBudget", async (body) => {
   try {
     const res = await createBudget(body.token, body.categoryId, body.amount);
-    return res.data;
+    return res.data; // Trả về dữ liệu sau khi tạo ngân sách thành công
   } catch (err) {
-    return err.response?.data || { message: "Unknown error" };
+    // Xử lý lỗi nếu có
+    console.error("Error creating budget:", err);
+    return err.response?.data || { message: "Unknown error" }; // Trả về thông báo lỗi nếu có
   }
 });
 
@@ -47,9 +49,11 @@ export const editBudget = createAsyncThunk(
         body.categoryId,
         body.amount
       );
-      return res.data;
+      return res.data; // Trả về dữ liệu sau khi cập nhật ngân sách thành công
     } catch (err) {
-      return err.response?.data || { message: "Unknown error" };
+      // Xử lý lỗi nếu có
+      console.error("Error updating budget:", err);
+      return err.response?.data || { message: "Unknown error" }; // Trả về thông báo lỗi nếu có
     }
   }
 );
@@ -59,9 +63,11 @@ export const removeBudget = createAsyncThunk(
   async (body) => {
     try {
       const res = await deleteBudget(body.token, body.budgetId);
-      return res.data;
+      return res.data; // Trả về dữ liệu sau khi xóa ngân sách thành công
     } catch (err) {
-      return err.response?.data || { message: "Unknown error" };
+      // Xử lý lỗi nếu có
+      console.error("Error removing budget:", err);
+      return err.response?.data || { message: "Unknown error" }; // Trả về thông báo lỗi nếu có
     }
   }
 );
@@ -71,9 +77,11 @@ export const fetchBudget = createAsyncThunk(
   async (body) => {
     try {
       const res = await getBudget(body.token);
-      return res.data;
+      return res.data; // Trả về dữ liệu sau khi lấy danh sách ngân sách thành công
     } catch (err) {
-      return err.response?.data || { message: "Unknown error" };
+      // Xử lý lỗi nếu có
+      console.error("Error fetching budget:", err);
+      return err.response?.data || { message: "Unknown error" }; // Trả về thông báo lỗi nếu có
     }
   }
 );
@@ -89,17 +97,21 @@ const budgetSlice = createSlice({
     budgetList: [],
   },
   reducers: {
+    // Hiển thị form ngân sách
     showBudgetForm: (state) => {
       state.displayBudgetForm = true;
     },
+    // Đóng form ngân sách
     closeBudgetForm: (state) => {
       state.displayBudgetForm = false;
     },
   },
   extraReducers: {
+    // Khi action addBudget đang được thực thi
     [addBudget.pending]: (state) => {
-      state.addBudgetInProcess = true;
+      state.addBudgetInProcess = true; // Đặt trạng thái đang xử lý
     },
+    // Khi action addBudget thành công
     [addBudget.fulfilled]: (state, action) => {
       state.addBudgetInProcess = false;
       if (action.payload?.message === "success") {
@@ -115,8 +127,9 @@ const budgetSlice = createSlice({
           action.payload?.message || "Something went wrong"
         );
       }
-      state.displayBudgetForm = false;
+      state.displayBudgetForm = false; // Đóng form sau khi thêm ngân sách thành công
     },
+    // Khi action addBudget bị lỗi
     [addBudget.rejected]: (state) => {
       state.addBudgetInProcess = false;
       showNotification(
@@ -125,9 +138,11 @@ const budgetSlice = createSlice({
         "Failed to create budget. Please try again."
       );
     },
+    // Khi action editBudget đang được thực thi
     [editBudget.pending]: (state) => {
-      state.addBudgetEditInProcess = true;
+      state.addBudgetEditInProcess = true; // Đặt trạng thái đang xử lý
     },
+    // Khi action editBudget thành công
     [editBudget.fulfilled]: (state, action) => {
       state.addBudgetEditInProcess = false;
       if (action.payload?.message === "success") {
@@ -144,6 +159,7 @@ const budgetSlice = createSlice({
         );
       }
     },
+    // Khi action editBudget bị lỗi
     [editBudget.rejected]: (state) => {
       state.addBudgetEditInProcess = false;
       showNotification(
@@ -152,7 +168,7 @@ const budgetSlice = createSlice({
         "Failed to update budget. Please try again."
       );
     },
-    [removeBudget.pending]: (state) => {},
+    // Khi action removeBudget thành công
     [removeBudget.fulfilled]: (state, action) => {
       if (action.payload?.message === "success") {
         showNotification(
@@ -168,6 +184,7 @@ const budgetSlice = createSlice({
         );
       }
     },
+    // Khi action removeBudget bị lỗi
     [removeBudget.rejected]: (state) => {
       showNotification(
         "error",
@@ -175,14 +192,16 @@ const budgetSlice = createSlice({
         "Failed to remove budget. Please try again."
       );
     },
+    // Khi action fetchBudget đang được thực thi
     [fetchBudget.pending]: (state) => {
-      state.fetchBudgetInProcess = true;
+      state.fetchBudgetInProcess = true; // Đặt trạng thái đang xử lý
     },
+    // Khi action fetchBudget thành công
     [fetchBudget.fulfilled]: (state, action) => {
       state.fetchBudgetInProcess = false;
       if (action.payload?.message === "success") {
         state.budgetList = action.payload.data || [];
-        console.log("Budget fetched:", state.budgetList);
+        console.log("Budget fetched:", state.budgetList); // In ra danh sách ngân sách đã lấy
       } else {
         showNotification(
           "error",
@@ -191,6 +210,7 @@ const budgetSlice = createSlice({
         );
       }
     },
+    // Khi action fetchBudget bị lỗi
     [fetchBudget.rejected]: (state) => {
       state.fetchBudgetInProcess = false;
       showNotification(
@@ -202,6 +222,7 @@ const budgetSlice = createSlice({
   },
 });
 
+// Export các hành động và reducer
 export const { showBudgetForm, closeBudgetForm } = budgetSlice.actions;
 
 export default budgetSlice;

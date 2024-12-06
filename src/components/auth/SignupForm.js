@@ -29,6 +29,8 @@ export default function SignupForm(props) {
   );
   const [formValues, setFormValues] = useState({});
   const dispatch = useDispatch();
+
+  // Form cho thông tin người dùng
   const userDetailsForm = useForm({
     initialValues: {
       firstName: "",
@@ -43,6 +45,7 @@ export default function SignupForm(props) {
     },
   });
 
+  // Form OTP
   const otpForm = useForm({
     initialValues: {
       otp: "",
@@ -53,6 +56,7 @@ export default function SignupForm(props) {
     },
   });
 
+  // Form mật khẩu
   const passwordForm = useForm({
     initialValues: {
       password: "",
@@ -71,26 +75,45 @@ export default function SignupForm(props) {
     },
   });
 
-  function handleCreateAccount() {
-    dispatch(createAccount({ ...formValues, ...passwordForm.values }));
-    userDetailsForm.reset();
-    otpForm.reset();
-    passwordForm.reset();
+  // Hàm tạo tài khoản
+  async function handleCreateAccount() {
+    try {
+      await dispatch(createAccount({ ...formValues, ...passwordForm.values }));
+      userDetailsForm.reset();
+      otpForm.reset();
+      passwordForm.reset();
+    } catch (err) {
+      console.error("Error creating account:", err);
+      // Xử lý lỗi tại đây, có thể hiển thị thông báo lỗi cho người dùng
+    }
   }
 
-  function handleVerifyCode() {
-    dispatch(verifyCode({ otp: otpForm.values.otp, email: formValues.email }));
+  // Hàm xác minh mã OTP
+  async function handleVerifyCode() {
+    try {
+      await dispatch(verifyCode({ otp: otpForm.values.otp, email: formValues.email }));
+    } catch (err) {
+      console.error("Error verifying code:", err);
+      // Xử lý lỗi tại đây, có thể hiển thị thông báo lỗi cho người dùng
+    }
   }
 
-  function handleSendVerificationCode() {
-    setFormValues({
-      ...formValues,
-      email: userDetailsForm.values.email,
-      firstName: userDetailsForm.values.firstName,
-      lastName: userDetailsForm.values.lastName,
-    });
-    dispatch(sendVerificationCode({ email: userDetailsForm.values.email }));
+  // Hàm gửi mã xác minh
+  async function handleSendVerificationCode() {
+    try {
+      setFormValues({
+        ...formValues,
+        email: userDetailsForm.values.email,
+        firstName: userDetailsForm.values.firstName,
+        lastName: userDetailsForm.values.lastName,
+      });
+      await dispatch(sendVerificationCode({ email: userDetailsForm.values.email }));
+    } catch (err) {
+      console.error("Error sending verification code:", err);
+      // Xử lý lỗi tại đây, có thể hiển thị thông báo lỗi cho người dùng
+    }
   }
+
   return (
     <Modal
       withCloseButton={false}
@@ -107,6 +130,7 @@ export default function SignupForm(props) {
         Register
       </Title>
       <Container size="md">
+        {/* Form thông tin người dùng */}
         {displayUserDetailsForm && (
           <form
             onSubmit={userDetailsForm.onSubmit((values) =>
@@ -153,6 +177,8 @@ export default function SignupForm(props) {
             </Group>
           </form>
         )}
+
+        {/* Form xác minh OTP */}
         {displayOtpForm && (
           <form onSubmit={otpForm.onSubmit((values) => handleVerifyCode())}>
             <TextInput
@@ -171,6 +197,8 @@ export default function SignupForm(props) {
             </Group>
           </form>
         )}
+
+        {/* Form mật khẩu */}
         {displayPasswordForm && (
           <form
             onSubmit={passwordForm.onSubmit((values) => handleCreateAccount())}

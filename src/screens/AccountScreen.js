@@ -11,17 +11,33 @@ import { validateToken } from "../features/userSlice";
 export default function AccountScreen() {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.user.token);
+
+  // useEffect to trigger data fetching when component is mounted or token changes
   useEffect(() => {
     async function fetchData() {
-      await dispatch(validateToken(token));
-      dispatch(fetchAccount({ token: token }));
+      try {
+        // Validate the token first
+        await dispatch(validateToken(token));
+        // Fetch account data using the token
+        dispatch(fetchAccount({ token: token }));
+      } catch (error) {
+        // Handle any errors that might occur during the fetch
+        console.error("Error fetching data:", error);
+        // Optionally, you could dispatch an error action to show an error message
+      }
     }
+
+    // Call fetchData function
     fetchData();
   }, [dispatch, token]);
+
+  // Select the necessary state values from the Redux store
   const fetchAccountInProcess = useSelector(
     (state) => state.account.fetchAccountInProcess
   );
   const accountList = useSelector((state) => state.account.accountList);
+
+  // Skeleton loading component to display while the data is being fetched
   function GridSkeleton() {
     return (
       <Grid style={{ height: 60 }}>
@@ -40,58 +56,50 @@ export default function AccountScreen() {
       </Grid>
     );
   }
+
   return (
     <Layout title={"Accounts"} load={accountList.length > 0}>
       {fetchAccountInProcess ? (
+        // Show loading skeleton while fetching data
         <div>
           <Container size={"xxl"}>
+            {/* Skeleton for header and features */}
             <Grid style={{ marginBottom: 10 }}>
               <Grid.Col span={2}>
                 <Skeleton height={16} mt={10} width="80%" radius="xl" />
               </Grid.Col>
               <Grid.Col span={2}>
-                <Skeleton
-                  style={{ marginBottom: 10 }}
-                  height={36}
-                  radius="md"
-                />
+                <Skeleton style={{ marginBottom: 10 }} height={36} radius="md" />
               </Grid.Col>
             </Grid>
+
+            {/* Skeleton for account items */}
             <Grid style={{ marginBottom: 20 }}>
               <Grid.Col span={2}>
-                <Skeleton
-                  style={{ marginBottom: 10 }}
-                  height={80}
-                  radius="md"
-                />
+                <Skeleton style={{ marginBottom: 10 }} height={80} radius="md" />
               </Grid.Col>
               <Grid.Col span={2}>
-                <Skeleton
-                  style={{ marginBottom: 10 }}
-                  height={80}
-                  radius="md"
-                />
+                <Skeleton style={{ marginBottom: 10 }} height={80} radius="md" />
               </Grid.Col>
               <Grid.Col span={2}>
-                <Skeleton
-                  style={{ marginBottom: 10 }}
-                  height={80}
-                  radius="md"
-                />
+                <Skeleton style={{ marginBottom: 10 }} height={80} radius="md" />
               </Grid.Col>
             </Grid>
-            <GridSkeleton></GridSkeleton>
-            <Divider style={{ marginBottom: 20 }}></Divider>
-            <GridSkeleton></GridSkeleton>
-            <Divider style={{ marginBottom: 10 }}></Divider>
-            <GridSkeleton></GridSkeleton>
-            <Divider style={{ marginBottom: 10 }}></Divider>
-            <GridSkeleton></GridSkeleton>
-            <Divider style={{ marginBottom: 10 }}></Divider>
-            <GridSkeleton></GridSkeleton>
+
+            {/* Additional skeletons to indicate loading */}
+            <GridSkeleton />
+            <Divider style={{ marginBottom: 20 }} />
+            <GridSkeleton />
+            <Divider style={{ marginBottom: 10 }} />
+            <GridSkeleton />
+            <Divider style={{ marginBottom: 10 }} />
+            <GridSkeleton />
+            <Divider style={{ marginBottom: 10 }} />
+            <GridSkeleton />
           </Container>
         </div>
       ) : (
+        // Render the actual content after data has been fetched
         <div>
           <AccountHeader />
           <AccountFeature />

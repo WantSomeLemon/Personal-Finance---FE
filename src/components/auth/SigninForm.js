@@ -15,29 +15,35 @@ import { loginAccount, openForgotPasswordForm } from "../../features/userSlice";
 export default function SigninForm(props) {
   const signinInProgress = useSelector((state) => state.user.signinInProgress);
   const dispatch = useDispatch();
+
+  // Sử dụng Mantine form để quản lý các giá trị nhập vào
   const form = useForm({
     initialValues: {
       email: "",
       password: "",
     },
     validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Email không hợp lệ"),
       password: (value) =>
         value
           ? null
-          : "Requires at least one lowercase, uppercase, number and special character.",
+          : "Mật khẩu yêu cầu ít nhất một chữ cái viết hoa, viết thường, số và ký tự đặc biệt.",
     },
   });
+
+  // Hàm xử lý đăng nhập khi gửi form
   async function handleSubmit() {
-    await dispatch(loginAccount(form.values))
-      .then((res) => {
-        if (res.payload) {
-          props.close();
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    try {
+      // Gửi yêu cầu đăng nhập và xử lý kết quả trả về
+      const res = await dispatch(loginAccount(form.values));
+      if (res.payload) {
+        props.close(); // Đóng modal khi đăng nhập thành công
+      }
+    } catch (err) {
+      // Bắt và hiển thị lỗi nếu có
+      console.error("Lỗi khi đăng nhập:", err);
+      // Thêm xử lý lỗi nếu cần (ví dụ: hiển thị thông báo lỗi cho người dùng)
+    }
   }
 
   return (
@@ -53,10 +59,12 @@ export default function SigninForm(props) {
     >
       <LoadingOverlay visible={signinInProgress} overlayBlur={2} />
       <Title size="32" align="center">
-        Login
+        Đăng nhập
       </Title>
       <Container size="md">
+        {/* Form đăng nhập */}
         <form onSubmit={form.onSubmit((values) => handleSubmit())}>
+          {/* Nhập Email */}
           <TextInput
             radius="md"
             style={{ marginTop: 16 }}
@@ -66,26 +74,29 @@ export default function SigninForm(props) {
             type="email"
             {...form.getInputProps("email")}
           />
+          {/* Nhập Mật khẩu */}
           <TextInput
             radius="md"
             style={{ marginTop: 16 }}
             withAsterisk
-            label="Password"
-            placeholder="Password"
+            label="Mật khẩu"
+            placeholder="Mật khẩu"
             type="password"
             {...form.getInputProps("password")}
           />
+          {/* Liên kết tới form quên mật khẩu */}
           <Text
             onClick={() => dispatch(openForgotPasswordForm())}
             size={"sm"}
             c="blue"
             style={{ marginTop: 16, cursor: "pointer" }}
           >
-            Forgot Password?
+            Quên mật khẩu?
           </Text>
           <Group style={{ marginTop: 16, marginBottom: 16 }}>
+            {/* Nút gửi */}
             <Button radius="md" fullWidth type="submit">
-              Submit
+              Gửi
             </Button>
           </Group>
         </form>

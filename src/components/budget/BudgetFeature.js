@@ -1,26 +1,50 @@
 import React from "react";
 import { Text, Paper, Grid } from "@mantine/core";
 import { useSelector } from "react-redux";
+
 export default function BudgetFeature() {
+  // Lấy danh sách ngân sách từ Redux store
   const budgetList = useSelector((state) => state.budget.budgetList);
+
+  // Tính tổng ngân sách
   function handleTotalBudget() {
-    return budgetList.reduce(
-      (accumulator, currentValue) => accumulator + currentValue.amount,
-      0
-    );
+    try {
+      return budgetList.reduce(
+        (accumulator, currentValue) => accumulator + currentValue.amount,
+        0
+      );
+    } catch (error) {
+      console.error("Lỗi khi tính tổng ngân sách:", error);
+      return 0; // Trả về 0 nếu có lỗi xảy ra
+    }
   }
+
+  // Tính tổng ngân sách đã sử dụng
   function handleTotalUsed() {
-    return budgetList.reduce(
-      (accumulator, currentValue) => accumulator + currentValue.used,
-      0
-    );
+    try {
+      return budgetList.reduce(
+        (accumulator, currentValue) => accumulator + currentValue.used,
+        0
+      );
+    } catch (error) {
+      console.error("Lỗi khi tính tổng ngân sách đã sử dụng:", error);
+      return 0; // Trả về 0 nếu có lỗi xảy ra
+    }
   }
+
+  // Tính tổng ngân sách còn lại
   function handleTotalLeft() {
-    return budgetList.reduce(
-      (accumulator, currentValue) => accumulator + currentValue.balance,
-      0
-    );
+    try {
+      return budgetList.reduce(
+        (accumulator, currentValue) => accumulator + currentValue.balance,
+        0
+      );
+    } catch (error) {
+      console.error("Lỗi khi tính tổng ngân sách còn lại:", error);
+      return 0; // Trả về 0 nếu có lỗi xảy ra
+    }
   }
+
   return (
     <div style={{ marginBottom: 10 }}>
       <Grid>
@@ -28,7 +52,7 @@ export default function BudgetFeature() {
           <Paper miw={"180px"} radius="md" p="md" withBorder>
             <Text size={"lg"} fw={700}>{`${handleTotalBudget()} .VND`}</Text>
             <Text size={"sm"} fw={700} c="dimmed">
-              TOTAL BUDGET
+              TỔNG NGÂN SÁCH
             </Text>
           </Paper>
         </Grid.Col>
@@ -36,7 +60,7 @@ export default function BudgetFeature() {
           <Paper miw={"180px"} radius="md" p="md" withBorder>
             <Text size={"lg"} fw={700}>{`${handleTotalUsed()} .VND`}</Text>
             <Text size={"sm"} fw={700} c="dimmed" ta="bottom">
-              TOTAL USED
+              TỔNG ĐÃ SỬ DỤNG
             </Text>
           </Paper>
         </Grid.Col>
@@ -45,10 +69,10 @@ export default function BudgetFeature() {
             <Text
               size={"lg"}
               fw={700}
-              style={{ color: "#26AB35" }}
+              style={{ color: "#26AB35" }} // Styling cho số tiền 'Total Left'
             >{`${handleTotalLeft()} .VND`}</Text>
             <Text size={"sm"} fw={700} c="dimmed" ta="bottom">
-              TOTAL LEFT
+              TỔNG CÒN LẠI
             </Text>
           </Paper>
         </Grid.Col>

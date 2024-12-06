@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 
 export default function ForgotPasswordForm(props) {
+  // Sử dụng selectors để quản lý trạng thái tải và trạng thái của các form
   const forgotPasswordInProgress = useSelector(
     (state) => state.user.forgotPasswordInProgress
   );
@@ -26,60 +27,84 @@ export default function ForgotPasswordForm(props) {
   const displayPasswordForm = useSelector(
     (state) => state.user.displayPasswordForm
   );
+
+  // Trạng thái cục bộ để quản lý dữ liệu form
   const [formValues, setFormValues] = useState({});
   const dispatch = useDispatch();
 
+  // Form nhập Email
   const mailForm = useForm({
     initialValues: {
       email: "",
     },
     validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Email không hợp lệ"),
     },
   });
 
+  // Form nhập mã OTP
   const otpForm = useForm({
     initialValues: {
       otp: "",
     },
-
     validate: {
-      otp: (value) => (value.length === 6 ? null : "Enter valid OTP"),
+      otp: (value) => (value.length === 6 ? null : "Vui lòng nhập mã OTP hợp lệ"),
     },
   });
 
+  // Form nhập mật khẩu mới
   const passwordForm = useForm({
     initialValues: {
       password: "",
       confirmPassword: "",
     },
-
     validate: {
       password: (value) =>
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]*$/.test(
           value
         )
           ? null
-          : "Requires at least one lowercase, uppercase, number and special character.",
+          : "Mật khẩu yêu cầu ít nhất một chữ cái viết hoa, viết thường, số và ký tự đặc biệt.",
       confirmPassword: (value, { password }) =>
-        value === password ? null : "Passwords do not match",
+        value === password ? null : "Mật khẩu xác nhận không khớp",
     },
   });
 
+  // Xử lý logic thay đổi mật khẩu
   function handleRestPassword() {
-    console.log("formValues", formValues);
-    dispatch(
-      newPassword({ ...formValues, password: passwordForm.values.password })
-    );
+    try {
+      // Gửi yêu cầu thay đổi mật khẩu mới
+      console.log("formValues", formValues);
+      dispatch(
+        newPassword({ ...formValues, password: passwordForm.values.password })
+      );
+    } catch (error) {
+      console.error("Lỗi khi đặt lại mật khẩu:", error);
+      // Thêm logic xử lý lỗi, ví dụ hiển thị thông báo lỗi
+    }
   }
 
+  // Xử lý xác thực mã OTP
   function handleVerifyCode() {
-    dispatch(verifyCode({ otp: otpForm.values.otp, email: formValues.email }));
+    try {
+      // Gửi yêu cầu xác thực mã OTP
+      dispatch(verifyCode({ otp: otpForm.values.otp, email: formValues.email }));
+    } catch (error) {
+      console.error("Lỗi khi xác thực mã OTP:", error);
+      // Xử lý lỗi liên quan đến xác thực OTP ở đây
+    }
   }
 
+  // Xử lý gửi mã OTP xác thực
   function handleSendVerificationCode() {
-    setFormValues({ ...formValues, email: mailForm.values.email });
-    dispatch(sendVerificationCodeForFP({ email: mailForm.values.email }));
+    try {
+      // Cập nhật formValues với email và gửi yêu cầu gửi mã OTP
+      setFormValues({ ...formValues, email: mailForm.values.email });
+      dispatch(sendVerificationCodeForFP({ email: mailForm.values.email }));
+    } catch (error) {
+      console.error("Lỗi khi gửi mã xác thực:", error);
+      // Xử lý lỗi liên quan đến gửi mã OTP ở đây
+    }
   }
 
   return (
@@ -95,13 +120,14 @@ export default function ForgotPasswordForm(props) {
     >
       <LoadingOverlay visible={forgotPasswordInProgress} overlayBlur={2} />
       <Title size="32" align="center">
-        Reset Password
+        Đặt lại mật khẩu
       </Title>
       <Container size="md">
+        {/* Hiển thị form nhập Email */}
         {displayMailForm && (
           <div>
             <Text style={{ marginTop: 10 }} size="md" c="dimmed">
-              Enter Email to Generate OTP
+              Nhập Email để nhận mã OTP
             </Text>
             <form
               onSubmit={mailForm.onSubmit((values) =>
@@ -119,39 +145,41 @@ export default function ForgotPasswordForm(props) {
               />
               <Group style={{ marginTop: 36, marginBottom: 10 }}>
                 <Button radius="md" fullWidth type="submit">
-                  Continue
+                  Tiếp tục
                 </Button>
               </Group>
             </form>
           </div>
         )}
+        {/* Hiển thị form nhập mã OTP */}
         {displayOtpForm && (
           <div>
             <Text style={{ marginTop: 10 }} size="md" c="dimmed">
-              Enter Security Code
+              Nhập mã bảo mật
             </Text>
             <form onSubmit={otpForm.onSubmit((values) => handleVerifyCode())}>
               <TextInput
                 radius="md"
                 style={{ marginTop: 16 }}
                 withAsterisk
-                label="Enter Security Code"
-                placeholder="Vd: 001666"
+                label="Nhập mã bảo mật"
+                placeholder="Ví dụ: 001666"
                 type="otp"
                 {...otpForm.getInputProps("otp")}
               />
               <Group style={{ marginTop: 36, marginBottom: 10 }}>
                 <Button radius="md" fullWidth type="submit">
-                  Verify Code
+                  Xác nhận mã
                 </Button>
               </Group>
             </form>
           </div>
         )}
+        {/* Hiển thị form nhập mật khẩu */}
         {displayPasswordForm && (
           <div>
             <Text style={{ marginTop: 10 }} size="md" c="dimmed">
-              Set New Pasasword
+              Đặt mật khẩu mới
             </Text>
             <form
               onSubmit={passwordForm.onSubmit((values) => handleRestPassword())}
@@ -160,8 +188,8 @@ export default function ForgotPasswordForm(props) {
                 radius="md"
                 style={{ marginTop: 16 }}
                 withAsterisk
-                label="New Password"
-                placeholder="Password"
+                label="Mật khẩu mới"
+                placeholder="Mật khẩu"
                 type="password"
                 {...passwordForm.getInputProps("password")}
               />
@@ -169,14 +197,14 @@ export default function ForgotPasswordForm(props) {
                 radius="md"
                 style={{ marginTop: 16 }}
                 withAsterisk
-                label="Confirm Password"
-                placeholder="Confirm Password"
+                label="Xác nhận mật khẩu"
+                placeholder="Xác nhận mật khẩu"
                 type="password"
                 {...passwordForm.getInputProps("confirmPassword")}
               />
               <Group style={{ marginTop: 36, marginBottom: 10 }}>
                 <Button radius="md" fullWidth type="submit">
-                  Submit
+                  Gửi
                 </Button>
               </Group>
             </form>

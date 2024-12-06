@@ -9,47 +9,60 @@ import {
 } from "../api/debtService";
 import { ReactComponent as SuccessIcon } from "../assets/success-icon.svg";
 
+// Async thunk to add a debt
 export const addDebt = createAsyncThunk("debt/addDebt", async (body) => {
-  return createDebt(body)
-    .then((res) => {
-      return res.data;
-    })
-    .catch((err) => {
-      return err.response.data;
-    });
+  try {
+    // API call to create a debt
+    const res = await createDebt(body);
+    return res.data;
+  } catch (err) {
+    // Handle error and return the response data or default error message
+    console.error("Error creating debt:", err);
+    return err.response?.data || { message: "Unknown error occurred" };
+  }
 });
 
+// Async thunk to edit a debt
 export const editDebt = createAsyncThunk("debt/editDebt", async (body) => {
-  console.log("body", body);
-  return updateDebt(body)
-    .then((res) => {
-      return res.data;
-    })
-    .catch((err) => {
-      return err.response.data;
-    });
+  try {
+    console.log("body", body);
+    // API call to update the debt
+    const res = await updateDebt(body);
+    return res.data;
+  } catch (err) {
+    // Handle error and return the response data or default error message
+    console.error("Error updating debt:", err);
+    return err.response?.data || { message: "Unknown error occurred" };
+  }
 });
 
+// Async thunk to remove a debt
 export const removeDebt = createAsyncThunk("debt/removeDebt", async (body) => {
-  return deleteDebt(body)
-    .then((res) => {
-      return res.data;
-    })
-    .catch((err) => {
-      return err.response.data;
-    });
+  try {
+    // API call to delete a debt
+    const res = await deleteDebt(body);
+    return res.data;
+  } catch (err) {
+    // Handle error and return the response data or default error message
+    console.error("Error removing debt:", err);
+    return err.response?.data || { message: "Unknown error occurred" };
+  }
 });
 
+// Async thunk to fetch debts
 export const fetchDebt = createAsyncThunk(
   "debt/fetchDebt",
   async (value, { getState, rejectWithValue }) => {
     try {
+      // Get token from the state
       const state = getState();
       const token = state.user.token;
+      // API call to fetch debts
       const response = await getDebt(token, value);
       // Return data received from API
       return response.data;
     } catch (error) {
+      // Log and reject the error if fetching fails
       console.error("Failed to fetch debts:", error);
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -66,25 +79,29 @@ const debtSlice = createSlice({
     debtList: [],
   },
   reducers: {
+    // Action to show debt form
     showDebtForm: (state) => {
       state.displayDebtForm = true;
     },
+    // Action to close debt form
     closeDebtForm: (state) => {
       state.displayDebtForm = false;
     },
   },
   extraReducers: {
+    // Handling the pending state for addDebt
     [addDebt.pending]: (state) => {
       state.addDebtInProcess = true;
       console.log("Debt Add pending");
     },
+    // Handling the fulfilled state for addDebt
     [addDebt.fulfilled]: (state, action) => {
       state.addDebtInProcess = false;
       if (action.payload?.message === "success") {
         console.log("Debt Created");
         notifications.show({
           title: "Debt Created",
-          message: "Your debt created successfully!!",
+          message: "Your debt was created successfully!",
           icon: <SuccessIcon />,
           radius: "lg",
           autoClose: 5000,
@@ -92,7 +109,7 @@ const debtSlice = createSlice({
       } else if (_.isEmpty(action.payload)) {
         notifications.show({
           title: "Something went wrong",
-          message: "Please try again!!",
+          message: "Please try again!",
           radius: "lg",
           color: "red",
           autoClose: 5000,
@@ -108,22 +125,25 @@ const debtSlice = createSlice({
       }
       state.displayDebtForm = false;
     },
+    // Handling the rejected state for addDebt
     [addDebt.rejected]: (state) => {
       state.addDebtInProcess = false;
-      console.log("Debt Create failed");
-      alert("Debt Create failed, Try again");
+      console.error("Debt Create failed");
+      alert("Debt Create failed. Please try again.");
     },
+    // Handling the pending state for editDebt
     [editDebt.pending]: (state) => {
       state.addDebtEditInProcess = true;
       console.log("Debt Edit pending");
     },
+    // Handling the fulfilled state for editDebt
     [editDebt.fulfilled]: (state, action) => {
       state.addDebtEditInProcess = false;
       if (action.payload?.message === "success") {
         console.log("Debt Updated");
         notifications.show({
           title: "Debt Updated",
-          message: "Your debt updated successfully!!",
+          message: "Your debt was updated successfully!",
           icon: <SuccessIcon />,
           radius: "lg",
           autoClose: 5000,
@@ -131,7 +151,7 @@ const debtSlice = createSlice({
       } else if (_.isEmpty(action.payload)) {
         notifications.show({
           title: "Something went wrong",
-          message: "Please try again!!",
+          message: "Please try again!",
           radius: "lg",
           color: "red",
           autoClose: 5000,
@@ -146,20 +166,23 @@ const debtSlice = createSlice({
         });
       }
     },
+    // Handling the rejected state for editDebt
     [editDebt.rejected]: (state) => {
       state.addDebtEditInProcess = false;
-      console.log("Debt update failed");
-      alert("Debt update failed, Try again");
+      console.error("Debt update failed");
+      alert("Debt update failed. Please try again.");
     },
+    // Handling the pending state for removeDebt
     [removeDebt.pending]: (state) => {
       console.log("Debt Remove pending");
     },
+    // Handling the fulfilled state for removeDebt
     [removeDebt.fulfilled]: (state, action) => {
       if (action.payload?.message === "success") {
         console.log("Debt Removed");
         notifications.show({
           title: "Debt Removed",
-          message: "Your debt removed successfully!!",
+          message: "Your debt was removed successfully!",
           icon: <SuccessIcon />,
           radius: "lg",
           autoClose: 5000,
@@ -167,7 +190,7 @@ const debtSlice = createSlice({
       } else if (_.isEmpty(action.payload)) {
         notifications.show({
           title: "Something went wrong",
-          message: "Please try again!!",
+          message: "Please try again!",
           radius: "lg",
           color: "red",
           autoClose: 5000,
@@ -182,36 +205,30 @@ const debtSlice = createSlice({
         });
       }
     },
+    // Handling the rejected state for removeDebt
     [removeDebt.rejected]: (state) => {
-      console.log("Debt remove failed");
-      alert("Debt remove failed, Try again");
+      console.error("Debt remove failed");
+      alert("Debt removal failed. Please try again.");
     },
+    // Handling the pending state for fetchDebt
     [fetchDebt.pending]: (state) => {
       state.fetchDebtInProcess = true;
       console.log("Debt fetch pending");
     },
+    // Handling the fulfilled state for fetchDebt
     [fetchDebt.fulfilled]: (state, action) => {
-      // state.debtList = action.payload.map((debt) => ({
-      //   debtId: debt.debtId,
-      //   amount: debt.amount,
-      //   dueDate: debt.dueDate,
-      //   moneyFrom: debt.moneyFrom,
-      //   status: debt.status,
-      //   user: debt.user,
-      // }));
-
       state.debtList = action.payload;
-
-      console.log("Debt fetched");
-      console.log(state.debtList);
+      console.log("Debt fetched", state.debtList);
     },
+    // Handling the rejected state for fetchDebt
     [fetchDebt.rejected]: (state) => {
       state.fetchDebtInProcess = false;
-      console.log("Debt fetch failed");
+      console.error("Debt fetch failed");
     },
   },
 });
 
+// Export actions to be dispatched
 export const { showDebtForm, closeDebtForm } = debtSlice.actions;
 
 export default debtSlice;

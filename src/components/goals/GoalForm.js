@@ -7,7 +7,7 @@ import {
   Grid,
   Text,
   LoadingOverlay,
-  Select, // Import Select from Mantine
+  Select, // Import Select từ Mantine
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { addGoal, closeGoalForm, fetchGoal } from "../../features/goalSlice";
@@ -20,39 +20,48 @@ export default function GoalForm(props) {
   const token = useSelector((state) => state.user.token);
   const addGoalInProcess = useSelector((state) => state.goal.addGoalInProcess);
   const [showDiscard, setShowDiscard] = useState(false);
+
+  // Khởi tạo form với các giá trị mặc định và validate
   const form = useForm({
     initialValues: {
       name: "",
       description: "",
       targetAmount: "",
-      status: "Pending", // Default to "Pending"
+      status: "Pending", // Mặc định là "Pending"
       targetDate: new Date(),
     },
     validate: {
-      name: (value) => (value !== "" ? null : "Name is required"),
+      name: (value) => (value !== "" ? null : "Name is required"), // Kiểm tra tên
       targetAmount: (value) =>
-        value !== "" ? null : "Target Amount is required",
+        value !== "" ? null : "Target Amount is required", // Kiểm tra số tiền mục tiêu
     },
   });
 
+  // Hàm xử lý submit khi người dùng gửi form
   async function handleSubmit() {
-    await dispatch(
-      addGoal({
-        ...form.values,
-        token: token,
-        targetDate: form.values.targetDate.getTime(),
-      })
-    );
-    await dispatch(fetchGoal({ token: token }));
-    form.reset();
+    try {
+      await dispatch(
+        addGoal({
+          ...form.values,
+          token: token,
+          targetDate: form.values.targetDate.getTime(),
+        })
+      );
+      await dispatch(fetchGoal({ token: token }));
+      form.reset(); // Reset form sau khi gửi
+    } catch (error) {
+      console.error("Lỗi khi thêm mục tiêu:", error); // Ghi lỗi nếu có sự cố trong quá trình gửi
+    }
   }
 
+  // Hàm xử lý khi người dùng muốn hủy bỏ và reset form
   function handleDiscard() {
     form.reset();
     setShowDiscard(false);
-    dispatch(closeGoalForm());
+    dispatch(closeGoalForm()); // Đóng form khi hủy bỏ
   }
 
+  // Hàm xử lý khi người dùng hủy bỏ việc xác nhận hủy
   function handleDiscardCancel() {
     setShowDiscard(false);
   }
@@ -68,7 +77,7 @@ export default function GoalForm(props) {
       size="sm"
       opened={props.open}
       onClose={() => {
-        props.close();
+        props.close(); // Đóng form khi người dùng nhấn close
       }}
       centered
     >
@@ -133,7 +142,7 @@ export default function GoalForm(props) {
                 radius="md"
                 variant={"default"}
                 fullWidth
-                onClick={() => setShowDiscard(true)}
+                onClick={() => setShowDiscard(true)} // Hiển thị modal xác nhận hủy
               >
                 Discard
               </Button>
@@ -157,14 +166,14 @@ export default function GoalForm(props) {
         trapFocus={false}
         withOverlay={false}
         opened={showDiscard}
-        onClose={handleDiscardCancel}
+        onClose={handleDiscardCancel} // Nếu người dùng hủy bỏ, đóng modal
         radius="lg"
         centered
         withCloseButton={false}
         title="Confirm Discard"
       >
         <Text size={"sm"} c={"dimmed"} style={{ marginBottom: 10 }}>
-          You will lose all the content you entered
+          You will lose all the content you entered {/* Cảnh báo người dùng sẽ mất dữ liệu nhập vào */}
         </Text>
         <Grid>
           <Grid.Col span={"auto"}>
@@ -172,7 +181,7 @@ export default function GoalForm(props) {
               radius="md"
               variant={"default"}
               fullWidth
-              onClick={() => setShowDiscard(false)}
+              onClick={() => setShowDiscard(false)} // Đóng modal xác nhận hủy
             >
               No
             </Button>
@@ -180,7 +189,7 @@ export default function GoalForm(props) {
           <Grid.Col span={"auto"}>
             <Button
               color={"red"}
-              onClick={() => handleDiscard()}
+              onClick={() => handleDiscard()} // Thực hiện hủy bỏ và reset form
               radius="md"
               fullWidth
               type="submit"
